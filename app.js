@@ -19,11 +19,21 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/auth', authRouter);
+
+app.use('/', (req,res)=>{
+  res.render('home');
+});
+
 app.use('/chat', allchatRouter);
 
-app.get('/', (req, res) => {
-    res.render('home');
+// app.get('/', (req, res) => {
+//     res.render('home');
+// });
+
+app.get('/auth/sent', (req, res) => {
+  res.render('mailsent');
 });
+
 
 // app.use((req, res) => {
 //     res.render('error');
