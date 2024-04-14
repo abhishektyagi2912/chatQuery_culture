@@ -1,14 +1,26 @@
 const Socket = io('http://localhost:3000', {
     query: {
-        username: sessionStorage.getItem('username') 
+        username: sessionStorage.getItem('username'),
+        agentId: sessionStorage.getItem('agentId')
     }
 });
 
 function createConnection(e) {
-    e.preventDefault(); // Prevent default form submission behavior
+    e.preventDefault();
     Socket.emit('createConnection', { data: 'Hello from client' });
     console.log('Button clicked');
     console.log(Socket.id);
+    const newMessage = {
+        chatId: '$2b$10$4PdppwJ6i8hsUZVQrZG2WeFRVYpXW8DZg6h2gcnrav9.JFUlomF.C',
+        reciver: 'Abhishek Tyagi',
+        message: [
+            {
+                'sender': 'kk',
+                'message': 'chutiya h tu smjha'
+            }
+        ]
+    };
+    Socket.emit('message-send', newMessage)
 }
 
 Socket.on('connect', () => {
@@ -21,6 +33,10 @@ Socket.on('disconnect', () => {
 });
 
 Socket.on('connectionCreated', (data) => {
+    console.log(data);
+});
+
+Socket.on('receive-message', (data) => {
     console.log(data);
 });
 

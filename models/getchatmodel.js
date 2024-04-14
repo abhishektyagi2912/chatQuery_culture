@@ -12,9 +12,15 @@ const getchatSchema = new mongoose.Schema({
         unique: true,
         required: [true, 'ChatId is required'],
     },
+    queyId :{
+        type: String,
+        ref: 'QueryId',
+        unique: true,
+        required: [true, 'QueryId is required'],
+    },
     receiver :{
         type: String,
-        ref: 'User',
+        ref: 'receiver',
         required: [true, 'Receiver is required'],
     }
 });

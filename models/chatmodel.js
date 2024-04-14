@@ -14,14 +14,14 @@ const messageSchema = new mongoose.Schema({
 const chatSchema = new mongoose.Schema({
     chatId: {
         type: String,
+        unqiue: true,
         required: [true, 'ChatId is required'],
     },
-    receiver: {
+    queryId: {
         type: String,
-        ref: 'User',
-        required: [true, 'Receiver is required'],
+        unqiue: true,
+        required: [true, 'QueryId is required'],
     },
-
     Messages : {
         type: [messageSchema],
         required: [true, 'Message is required'],

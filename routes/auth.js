@@ -3,8 +3,8 @@ var authrouter = express.Router();
 const authcontroller = require('../controllers/authcontroller');
 var authmiddleware = require('../middlewares/auth');
 
-authrouter.post('/signup', authmiddleware, authcontroller.signup);
-authrouter.post('/login', authmiddleware, authcontroller.login);
+authrouter.post('/signup', authcontroller.signup);
+authrouter.post('/login', authcontroller.login);
 authrouter.get('/login', (req, res) => {
     res.render('login');
 });
