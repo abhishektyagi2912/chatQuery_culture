@@ -1,7 +1,6 @@
 const Socket = io('http://localhost:3000', {
     query: {
         username: sessionStorage.getItem('username'),
-        agentId: sessionStorage.getItem('agentId')
     }
 });
 
