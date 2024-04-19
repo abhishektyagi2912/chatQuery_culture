@@ -1,12 +1,42 @@
-const eyeClick = document.querySelector("[data-password]");
-const password_elem = document.getElementById("password");
 
-eyeClick.onclick = () => {
-  const icon = eyeClick.children[0];
-  icon.classList.toggle("fa-eye-slash");
-  if (password_elem.type === "password") {
-    password_elem.type = "text";
-  } else if (password_elem.type === "text") {
-    password_elem.type = "password";
+const loginButton = document.getElementById("loginButton");
+
+loginButton.addEventListener("click", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("emailId").value;
+  const password = document.getElementById("enterpassword").value;
+  const data = { email, password };
+
+  if (email == "" || password == "") {
+    alert("Please fill all the fields");
+    return;
   }
-};
+
+  try {
+    const response = await fetch('/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    });
+
+    if (response.status === 200) {
+      response.json().then((data) => {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('email', email);
+        localStorage.setItem('userName', data.userName);
+        token = data.token;
+        location.href = '/';
+      });
+    }
+    else if (response.status === 401) {
+      alert('Email Id is Not Verified');
+    }
+    else {
+      console.error('Login failed');
+    }
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})

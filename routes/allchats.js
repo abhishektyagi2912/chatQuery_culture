@@ -7,5 +7,5 @@ chatrouter.get('/getallchats/:queryId', chatcontroller.getchat);
 chatrouter.get('/allchats/:id', chatcontroller.allchats);
 chatrouter.post('/sendmessage', chatcontroller.sendmessage);
 chatrouter.post('/createChat', chatcontroller.createChat);
-
+chatrouter.get('/:token', chatcontroller.allUserChats);
 module.exports = chatrouter;

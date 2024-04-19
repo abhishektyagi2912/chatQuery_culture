@@ -1,4 +1,4 @@
-const { sendmessage, createChat } = require("../controllers/allchatcontroller");
+const { sendmessage, createChat, allUserChats, getchat } = require("../controllers/allchatcontroller");
 const active = require("../models/active");
 const activeagent = require("../models/activeagent");
 
@@ -44,6 +44,14 @@ const socket = async (io) => {
 
         socket.on('accept', async (data) => {
             await createChat(io, data);
+        });
+
+        socket.on('fetch-chat', async (data) => {
+            await allUserChats(io, username,data);
+        });
+
+        socket.on('fetch-individual-chat', async (data) => {
+            await getchat(io, data,username);
         });
 
         socket.on("message-send", async (data) => {

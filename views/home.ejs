@@ -1,28 +1,172 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Socket.IO chat</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js" integrity="sha512-luMnTJZ7oEchNDZAtQhgjomP1eZefnl82ruTH/3Oj/Yu5qYtwL7+dVRccACS/Snp1lFXq188XFipHKYE75IaQQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <style>
-      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+<html lang="en">
 
-      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
-      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
-      #input:focus { outline: none; }
-      #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"
+    integrity="sha512-luMnTJZ7oEchNDZAtQhgjomP1eZefnl82ruTH/3Oj/Yu5qYtwL7+dVRccACS/Snp1lFXq188XFipHKYE75IaQQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+  <title>Document</title>
+  <link rel="stylesheet" href="/styles/home.css">
+</head>
 
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages > li { padding: 0.5rem 1rem; }
-      #messages > li:nth-child(odd) { background: #efefef; }
-    </style>
-  </head>
-  <body>
-    <ul id="messages"></ul>
-    <form id="form" action="">
-      <input id="input" autocomplete="off" /><button id="connectButton" ">Send</button>
-    </form>
-    <script src="/js/home.js"></script>
-  </body>
-  
+<body>
+  <div class="container-fluid page-2" id="page-2">
+    <div class="row" style="height: 100vh; overflow: hidden;">
+      <div class="col-md-4 dark-mode-bg overflow-y-auto" style="background-color: aliceblue;">
+        <div class="fixed-content ">
+          <div class="sticky-container">
+            <div class="d-flex align-items-center justify-content-between p-3">
+              <div class="d-flex align-items-center">
+                <img src="https://robohash.org/3.png" class="didi-1" alt="Your Image">
+                <p class="ms-2 mb-0 didi-name" id="userName"></p>
+              </div>
+              <i class="ri-pencil-line" style="font-size: 24px;"></i>
+            </div>
+            <input type="text" id="searchInput" placeholder="Search..."
+              class="form-control mt-2 rounded border dark-mode-input">
+          </div>
+          <div class="mt-3 dark-mode-bg" id="chatContainer">
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-8 d-flex flex-column dark-mode-bg">
+        <div class="d-flex align-items-center">
+          <img src="images/btmimage2.png" class="didi-3" alt="Your Image">
+          <p class="ms-2 mb-0 didi-name">Maalik <br> <span class="position">Online</span></p>
+          <span class="green-dot"></span>
+
+          <div class="icon-container ms-auto">
+            <i class="ri-search-line"></i>
+          </div>
+        </div>
+        <div class="chat-container">
+          <div class="chat-conversation mt-3">
+            <div class="chat-bubble sender">
+              <div class="sender-info">
+
+                <div class="message">
+
+                  <p class="chats-s">Maalik mai aa gya</p>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="chat-bubble receiver">
+              <div class="receiver-info">
+                <!-- <img src="images/btmimage4.png" class="receiver-image" alt="Receiver Image"> -->
+                <div class="message receiver">
+                  <p class="chats-r">Aye Bandya.....</p>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="chat-bubble sender">
+              <div class="sender-info">
+                <div class="message">
+
+                  <p class="chats-s">Naam Bataiye</p>
+
+                </div>
+                <!-- <img src="images/btmimage2.png" class="sender-image" alt="Sender Image"> -->
+              </div>
+            </div>
+
+            <div class="chat-bubble sender">
+              <div class="sender-info">
+                <div class="message">
+
+                  <p class="chats-s">Bhupendra Jogi</p>
+
+                </div>
+                <!-- <img src="images/btmimage2.png" class="sender-image" alt="Sender Image"> -->
+              </div>
+            </div>
+            <div class="chat-bubble receiver">
+              <div class="receiver-info">
+                <!-- <img src="images/btmimage4.png" class="receiver-image" alt="Receiver Image"> -->
+                <div class="message receiver">
+                  <p class="chats-r">US me kaha kaha gye hai.</p>
+
+                </div>
+              </div>
+            </div>
+            <div class="chat-bubble sender">
+              <div class="sender-info">
+                <div class="message">
+
+                  <p class="chats-s">Aap giyan hai?</p>
+
+                </div>
+                <!-- <img src="images/btmimage2.png" class="sender-image" alt="Sender Image"> -->
+              </div>
+            </div>
+            <div class="chat-bubble receiver">
+
+              <div class="receiver-info">
+                <!-- <span class="message-time receiver">10:35 AM</span> -->
+                <!-- <img src="images/btmimage4.png" class="receiver-image" alt="Receiver Image"> -->
+                <div class="message receiver">
+                  <p class="chats-r">aapko termintae kiya jata hai.</p>
+
+                </div>
+              </div>
+
+            </div>
+            <div class="chat-bubble sender">
+              <div class="sender-info">
+                <div class="message">
+
+                  <p class="chats-s">Promotion ho gya hai apka</p>
+
+                </div>
+
+              </div>
+              <!-- <img src="images/btmimage2.png" class="sender-image" alt="Sender Image"> -->
+            </div>
+            <div class="chat-bubble receiver">
+              <div class="receiver-info">
+                <!-- <img src="images/btmimage4.png" class="receiver-image" alt="Receiver Image"> -->
+                <div class="message receiver">
+
+                  <p class="chats-r">Mai hu boombasur</p>
+
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input">
+          <form class="chat-box d-flex align-items-center">
+            <input type="text" placeholder="Search people..." class="form-control mt-2 rounded border">
+            <div class="icon-container ms-auto">
+              <i class="ri-emoji-sticker-line"></i>
+              <i class="ri-camera-2-line"></i>
+              <div class="send-icon-container" id="connectButton">
+                <i class="ri ri-send-plane-fill ri-xl"></i>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/js/home.js"></script>
+</body>
+
 </html>

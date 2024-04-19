@@ -410,22 +410,20 @@ const login = async (req, res) => {
         if (!isPasswordCorrect) {
             return res.status(400).json({ message: "Invalid credentials" }); // 400 means bad request
         }
-        const token = jwt.sign({ email: existingUser.email, id: existingUser._id }, SECRET_KEY, { expiresIn: '1d' });
-
+        if(existingUser.isVerified === false) {
+          return res.status(401).json({ message: "Email not verified" });
+        }
+        const token = jwt.sign({ email: existingUser.email, id: existingUser.username }, SECRET_KEY, { expiresIn: '1d' });
+        
         // res.setHeader('Authorization', `Bearer ${token}`); // Set the Authorization header
 
         res.cookie("authToken", token, {
             httpOnly: true,
             sameSite: "lax",
-            maxage: 1000 * 60 * 60 * 24 * 7    // 7 days
-            // Other cookie options (e.g., secure, sameSite, maxAge, etc.)
-        });
-        res.cookie("userId", existingUser._id, {
-            httpOnly: false,
-            maxage: 1000 * 60 * 60 * 24 * 7   // 6 days
+            maxage: 1000 * 60 * 60 * 24 * 1    // 1 days
         });
 
-        res.status(200).json({ user: existingUser, token: token, message: "Login Sucessfully" });
+        res.status(200).json({ emailId : existingUser.email, userName: existingUser.username, token: token, message: "Login Sucessfully" });
     } catch (err) {
         console.log(err);
         res.status(500).json({ message: "Something went wrong" }); // 500 means server error
