@@ -21,19 +21,17 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/auth', authRouter);
 app.use('/chat', allchatRouter);
 
-app.use('/', middleware, (req,res)=>{
+app.use('/staffquery', middleware, (req,res)=>{
   res.render('home');
+});
+
+app.use('/', (req,res)=>{
+  res.render('agentside');
 });
 
 app.get('/auth/sent', (req, res) => {
   res.render('mailsent');
 });
-
-
-// app.use((req, res) => {
-//     res.render('error');
-// });
-
 
 const uri = process.env.MONGO_URL;
 mongoose

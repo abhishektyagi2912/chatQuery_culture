@@ -59,28 +59,6 @@ const allUserChats = async (io, username) => {
     }
 }
 
-const sendmessages = async (req, res) => {
-    const { chatId, sender, receiver, Messages } = req.body;
-    try {
-        const chat = await chatModel.findOne({ chatId: chatId });
-        if (chat) {
-            chat.Messages.push(Messages[0]);
-            await chat.save();
-            res.status(200).json(chat);
-        }
-        else {
-            const chat = await chatModel.create({ chatId, sender, receiver, Messages });
-            if (!chat) {
-                return res.status(404).json({ message: 'Message not sent' });
-            }
-            res.status(200).json(chat);
-        }
-    }
-    catch (err) {
-        console.log(err);
-    }
-}
-
 const sendmessage = async (io, data, username) => {
     const chatId = data.chatId;
     const Messages = data.message;

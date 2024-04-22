@@ -24,6 +24,8 @@
 <body>
   <div class="container-fluid page-2" id="page-2">
     <div class="row" style="height: 100vh; overflow: hidden;">
+
+      <!-- left side chat list ui -->
       <div class="col-md-4 dark-mode-bg overflow-y-auto" style="background-color: aliceblue;">
         <div class="fixed-content ">
           <div class="sticky-container">
@@ -41,26 +43,24 @@
           </div>
         </div>
       </div>
-
+      
+      <!-- right side chat box container ui -->
       <div class="col-md-8 d-flex flex-column dark-mode-bg .chat-conversation">
+
+        <!-- top name of the element -->
         <div id="chatWidgetWrapper"></div>
+
+        <!-- chat conversation container -->
         <div class="chat-container">
           <div class="chat-conversation mt-3" id="chatConversation">
             <!-- Chat bubbles will be dynamically added here -->
           </div>
         </div>
-        <div class="chat-input">
-          <form class="chat-box d-flex align-items-center">
-            <input type="text" placeholder="Search people..." class="form-control mt-2 rounded border">
-            <div class="icon-container ms-auto">
-              <i class="ri-emoji-sticker-line"></i>
-              <i class="ri-camera-2-line"></i>
-              <div class="send-icon-container" id="connectButton">
-                <i class="ri ri-send-plane-fill ri-xl"></i>
-              </div>
-            </div>
-          </form>
+        
+        <!-- chat input box -->
+        <div class="chat-input" id="chatInputWidget">
         </div>
+
       </div>
     </div>
   </div>

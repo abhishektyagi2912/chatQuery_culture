@@ -1,4 +1,4 @@
-const user = localStorage.getItem('userName');
+const user = sessionStorage.getItem('userName');
 const buttons = document.querySelectorAll('.btn');
 
 const Socket = io('http://localhost:3000', {
@@ -15,7 +15,7 @@ Socket.on('connect', () => {
 });
 
 Socket.on('get-chat', (data) => {
-    
+
     const chat = data.participant;
     const chatContainer = document.getElementById('chatContainer');
     chatContainer.innerHTML = '';
@@ -65,8 +65,6 @@ Socket.on('get-individual-chat', (data) => {
     });
 });
 
-
-
 Socket.on('disconnect', () => {
     console.log('Disconnected from server');
 });
@@ -104,14 +102,15 @@ username.textContent = user;
 
 document.addEventListener('click', (e) => {
     if (e.target.classList.contains('contact')) {
-        console.log(e.target.getAttribute('data-id'));
+
         const chatId = e.target.getAttribute('data-id');
         const reciver = e.target.getAttribute('data-receiver');
 
         //call the socket to fetch the individual chat
         Socket.emit('fetch-individual-chat', { chatId: chatId });
 
-
+        const chatContainer = document.getElementById('chatConversation');
+        chatContainer.innerHTML = '';
         // Update the chat widget
         const chatWidgetWrapper = document.createElement('div');
         chatWidgetWrapper.classList.add('d-flex', 'align-items-center');
@@ -130,5 +129,34 @@ document.addEventListener('click', (e) => {
         }
 
         document.getElementById('chatWidgetWrapper').appendChild(chatWidgetWrapper);
+
+        const chatInputWidget = document.createElement('div');
+        chatInputWidget.classList.add('chat-input', 'mt-2', 'pt-2', 'pb-2');
+        chatInputWidget.id = 'chatInputWidget';
+
+        const form = document.createElement('form');
+        form.classList.add('chat-box', 'd-flex', 'align-items-center');
+
+        form.innerHTML = `
+                <input type="text" placeholder="Search people..." class="form-control rounded border">
+                <div class="icon-container ms-auto">
+                    <i class="ri-emoji-sticker-line"></i>
+                    <i class="ri-camera-2-line"></i>
+                    <div class="send-icon-container" id="connectButton">
+                        <i class="ri ri-send-plane-fill ri-xl"></i>
+                    </div>
+                </div>
+            `;
+
+        chatInputWidget.appendChild(form);
+
+        // Clear previous chat input widget content
+        const previousChatInputWidget = document.getElementById('chatInputWidget');
+        if (previousChatInputWidget) {
+            previousChatInputWidget.innerHTML = '';
+        }
+
+        document.getElementById('chatInputWidget').appendChild(chatInputWidget);
+
     }
 });
