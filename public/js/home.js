@@ -15,7 +15,7 @@ Socket.on('connect', () => {
 });
 
 Socket.on('get-chat', (data) => {
-    console.log(data);
+    
     const chat = data.participant;
     const chatContainer = document.getElementById('chatContainer');
     chatContainer.innerHTML = '';
@@ -23,8 +23,8 @@ Socket.on('get-chat', (data) => {
         const date = new Date(data.participant[0].createdAt);
         const currentTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         chatContainer.innerHTML += `
-            <div class="contact py-2 btn" data-id="${chat.chatId}" style="cursor: pointer;">
-              <img src="https://robohash.org/2.png" class="contact-image" alt="Contact Image">
+            <div class="contact py-2 btn" data-id="${chat.chatId}" data-receiver="${chat.receiver}" style="cursor: pointer;">
+              <img src="https://robohash.org/1.png" class="contact-image" alt="Contact Image">
               <div class="contact-info">
                 <div class="contact-header">
                   <span class="contact-name">${chat.receiver}</span>
@@ -41,8 +41,31 @@ Socket.on('get-chat', (data) => {
 });
 
 Socket.on('get-individual-chat', (data) => {
-    console.log(data);
+
+    const chatContainer = document.getElementById('chatConversation');
+    chatContainer.innerHTML = '';
+
+    const chats = data.chat;
+    chats.forEach((message) => {
+        const isSender = message.sender === user;
+
+        const chatBubble = document.createElement('div');
+        chatBubble.classList.add('chat-bubble', isSender ? 'sender' : 'receiver');
+
+        const chatInfo = document.createElement('div');
+        chatInfo.classList.add(isSender ? 'sender-info' : 'receiver-info');
+
+        const messageContainer = document.createElement('div');
+        messageContainer.classList.add('message', isSender ? 'sender' : 'receiver');
+        messageContainer.innerHTML = `<p class="chats-${isSender ? 's' : 'r'}">${message.message}</p>`;
+
+        chatInfo.appendChild(messageContainer);
+        chatBubble.appendChild(chatInfo);
+        chatContainer.appendChild(chatBubble);
+    });
 });
+
+
 
 Socket.on('disconnect', () => {
     console.log('Disconnected from server');
@@ -57,7 +80,6 @@ Socket.on('receive-message', (data) => {
 });
 
 const connectButton = document.getElementById('connectButton');
-connectButton.addEventListener('click', createConnection);
 
 function createConnection(e) {
     e.preventDefault();
@@ -84,6 +106,29 @@ document.addEventListener('click', (e) => {
     if (e.target.classList.contains('contact')) {
         console.log(e.target.getAttribute('data-id'));
         const chatId = e.target.getAttribute('data-id');
-        Socket.emit('fetch-individual-chat', { chatId : chatId });
+        const reciver = e.target.getAttribute('data-receiver');
+
+        //call the socket to fetch the individual chat
+        Socket.emit('fetch-individual-chat', { chatId: chatId });
+
+
+        // Update the chat widget
+        const chatWidgetWrapper = document.createElement('div');
+        chatWidgetWrapper.classList.add('d-flex', 'align-items-center');
+        chatWidgetWrapper.innerHTML = `
+            <img src="https://robohash.org/1.png" class="didi-3" alt="Your Image">
+            <p class="ms-2 mb-0 didi-name">${reciver} </p>
+            <!--- <span class="green-dot"></span> --->
+            <div class="icon-container ms-auto">
+                <i class="ri-search-line"></i>
+            </div>`;
+
+        // Clear previous chat widget content
+        const previousChatWidget = document.getElementById('chatWidgetWrapper');
+        if (previousChatWidget) {
+            previousChatWidget.innerHTML = '';
+        }
+
+        document.getElementById('chatWidgetWrapper').appendChild(chatWidgetWrapper);
     }
 });

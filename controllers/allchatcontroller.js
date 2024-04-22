@@ -30,7 +30,6 @@ const getchat = async (io, data, userName) => {
             chat: chat.Messages,
         });
     } catch (err) {
-        // console.log(err);
         io.to(reciver.socketId).emit("get-individual-chat", {
             err,
         });
