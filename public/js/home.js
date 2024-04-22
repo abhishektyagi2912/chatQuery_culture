@@ -23,7 +23,7 @@ Socket.on('get-chat', (data) => {
         const date = new Date(data.participant[0].createdAt);
         const currentTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         chatContainer.innerHTML += `
-            <div class="contact py-2 mt-4 btn" data-id="${chat.chatId}" style="cursor: pointer;">
+            <div class="contact py-2 btn" data-id="${chat.chatId}" style="cursor: pointer;">
               <img src="https://robohash.org/2.png" class="contact-image" alt="Contact Image">
               <div class="contact-info">
                 <div class="contact-header">
@@ -55,7 +55,6 @@ Socket.on('connectionCreated', (data) => {
 Socket.on('receive-message', (data) => {
     console.log(data);
 });
-
 
 const connectButton = document.getElementById('connectButton');
 connectButton.addEventListener('click', createConnection);

@@ -118,11 +118,10 @@ const createChat = async (req, res) => {
     const { sender, receiver } = req.body;
     const chatId = bcrypt.hashSync(sender + receiver, 10);
     const existingChat = await allchatmodel.findOne({
-        $or: [
-            { 'participant.receiver': receiver }
-        ]
+        UserName: sender,
+        'participant.receiver': receiver,
     });
-
+    
     if (existingChat) {
         return res.status(400).json({ message: 'Chat already exists' });
     }
@@ -133,7 +132,7 @@ const createChat = async (req, res) => {
 
     const hasexist = await allchatmodel.findOne({ UserName: sender });
     if (hasexist) {
-        hasexist.participant.push({ receiver, chatId });
+        hasexist.participant.unshift({ receiver, chatId });
         await hasexist.save();
         return res.status(200).json(hasexist);
     }
