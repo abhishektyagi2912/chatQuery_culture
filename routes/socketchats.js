@@ -1,4 +1,4 @@
-const { sendmessage, createChat, allUserChats, getchat } = require("../controllers/allchatcontroller");
+const { sendmessage, createChat, allUserChats, getchat, getChatId } = require("../controllers/allchatcontroller");
 const active = require("../models/active");
 const activeagent = require("../models/activeagent");
 
@@ -7,9 +7,24 @@ const socket = async (io) => {
         console.log('A user connected');
         console.log(socket.id);
         console.log('Username:', socket.handshake.query.username);
+        console.log('QueryId:', socket.handshake.query.queryId);
         const username = socket.handshake.query.username;
+        const queryId = socket.handshake.query.queryId;
 
-        if (username !== null && username !== undefined) {
+        if (queryId !== null && queryId !== undefined) {
+            try {
+                var user = await activeagent.findOne({ queryId: queryId });
+                if (user) {
+                    user.socketId = socket.id;
+                    await user.save();
+                } else {
+                    await activeagent.create({ agentId: username, queryId: queryId, socketId: socket.id });
+                }
+            } catch (error) {
+                console.log("Error in socket:", error);
+            }
+        }
+        else if (username !== null && username !== undefined) {
             try {
                 var user = await active.findOne({ userName: username });
                 if (user) {
@@ -21,8 +36,9 @@ const socket = async (io) => {
             } catch (error) {
                 console.log("Error in socket:", error);
             }
-        } else {
-            console.log("Both username and agentId are undefined.");
+        } 
+        else {
+            console.log("username are undefined.");
         }
 
         socket.on('createConnection', (data) => {
@@ -37,9 +53,13 @@ const socket = async (io) => {
                 const activeUser = await active.findOne({ userName: user.userName });
 
                 if (activeUser) {
-                    io.to(activeUser.socketId).emit('broadcast-msg', { message: data });
+                    io.to(activeUser.socketId).emit('broadcast-msg', { agentId: data.agentId, message: data.message });
                 }
             });
+        });
+
+        socket.on('fetch-chat_id', async (data) => {
+            await getChatId(io, data);
         });
 
         socket.on('accept', async (data) => {
@@ -47,11 +67,11 @@ const socket = async (io) => {
         });
 
         socket.on('fetch-chat', async (data) => {
-            await allUserChats(io, username,data);
+            await allUserChats(io, username, data);
         });
 
         socket.on('fetch-individual-chat', async (data) => {
-            await getchat(io, data,username);
+            await getchat(io, data, username);
         });
 
         socket.on("message-send", async (data) => {

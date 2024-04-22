@@ -36,6 +36,29 @@ const getchat = async (io, data, userName) => {
     }
 }
 
+const getChatId = async (io, data) => {
+    try {
+        const queryId = data.data;
+        const chat = await getChatModel.findOne({ queyId: queryId });
+        const reciver = await activeagent.findOne({ queryId: queryId });
+        if (!chat) {
+            io.to(reciver.socketId).emit("get-chat-id", {
+                chatId: '',
+            });
+            return;
+        }
+
+        io.to(reciver.socketId).emit("get-chat-id", {
+            chatId: chat.chatId,
+        });
+    }
+    catch (err) {
+        io.to(reciver.socketId).emit("get-chat-id", {
+            err,
+        });
+    }
+}
+
 const allUserChats = async (io, username) => {
     const reciver = await active.findOne({ userName: username });
     try {
@@ -98,7 +121,7 @@ const createChat = async (req, res) => {
         UserName: sender,
         'participant.receiver': receiver,
     });
-    
+
     if (existingChat) {
         return res.status(400).json({ message: 'Chat already exists' });
     }
@@ -121,4 +144,4 @@ const createChat = async (req, res) => {
     res.status(200).json(chat);
 }
 
-module.exports = { allchats, getchat, sendmessage, createChat, allUserChats };
+module.exports = { allchats, getchat, sendmessage, createChat, allUserChats, getChatId };

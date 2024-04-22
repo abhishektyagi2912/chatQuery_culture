@@ -6,6 +6,11 @@ const activeAgentSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    queryId: {
+        unique: true,
+        type: String,
+        required: true
+    },
     socketId: {
         type: String,
         required: true

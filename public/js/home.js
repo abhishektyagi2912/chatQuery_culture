@@ -73,6 +73,36 @@ Socket.on('connectionCreated', (data) => {
     console.log(data);
 });
 
+Socket.on('broadcast-msg', (data) => {
+    console.log(data);
+    console.log(data.message);
+
+    const notificationCard = document.getElementById('notificationCard');
+    const notificationMessage = document.getElementById('notificationMessage');
+    const acceptButton = document.getElementById('acceptButton');
+    const rejectButton = document.getElementById('rejectButton');
+
+    // Set notification message
+    notificationMessage.textContent = data.message;
+    notificationCard.style.display = 'block';
+
+    setTimeout(() => {
+        notificationCard.style.display = 'none';
+    }, 10000);
+
+    acceptButton.addEventListener('click', () => {
+        notificationCard.style.display = 'none';
+        console.log('Accepted');
+        
+    });
+
+    rejectButton.addEventListener('click', () => {
+        notificationCard.style.display = 'none';
+        console.log('Rejected');
+    });
+});
+
+
 Socket.on('receive-message', (data) => {
     console.log(data);
 });

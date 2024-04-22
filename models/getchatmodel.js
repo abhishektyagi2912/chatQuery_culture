@@ -25,4 +25,4 @@ const getchatSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('GetChat', getchatSchema);
+module.exports = mongoose.model('getChatId', getchatSchema);
