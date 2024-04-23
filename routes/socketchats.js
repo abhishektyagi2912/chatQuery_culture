@@ -50,7 +50,6 @@ const socket = async (io) => {
 
         socket.on('brodcast', async (data) => {
             const users = await active.find();
-
             try {
                 const chat = await getchatmodel.findOne({ queryId: data.queryId });
                 if (!chat) {
@@ -59,11 +58,11 @@ const socket = async (io) => {
                     if (chats) {
                         const createchatmodel = await chatmodel.findOne({ queryId: data.queryId });
                         if (createchatmodel) {
-                            createchatmodel.Messages.push({ sender: data.agentId, message: data.message });
+                            createchatmodel.Messages.push({ sender: data.queryId, message: data.message });
                             await createchatmodel.save();
                         }
                         else {
-                            const chatcreated = await chatmodel.create({ chatId: chatId, queryId: data.queryId, Messages: [{ sender: data.agentId, message: data.message }] });
+                            const chatcreated = await chatmodel.create({ chatId: chatId, queryId: data.queryId, Messages: [{ sender: data.queryId, message: data.message }] });
                             if (chatcreated) {
                                 console.log('Chat created successfully');
                             }
@@ -80,7 +79,7 @@ const socket = async (io) => {
                 else if (chat.receiver === '') {
                     const createchatmodel = await chatmodel.findOne({ queryId: data.queryId });
                     if (createchatmodel) {
-                        createchatmodel.Messages.push({ sender: data.agentId, message: data.message });
+                        createchatmodel.Messages.push({ sender: data.queryId, message: data.message });
                         await createchatmodel.save();
                     }
                     users.forEach(async (user) => {
