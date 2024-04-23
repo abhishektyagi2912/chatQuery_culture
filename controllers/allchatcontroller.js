@@ -36,12 +36,33 @@ const getchat = async (io, data, userName) => {
     }
 }
 
+const getAgentchat = async (io, data) => {
+    console.log(data);
+    const reciver = await activeagent.findOne({ queryId: data.queryId });
+    try {
+        const chat = await chatModel.findOne({ chatId: data.chatId });
+        // console.log(chat);
+        if (!chat) {
+            io.to(reciver.socketId).emit("get-individual-chat", {
+                chat: [],
+            });
+            return;
+        }
+        io.to(reciver.socketId).emit("get-individual-chat", {
+            chat: chat.Messages,
+        });
+    } catch (err) {
+        io.to(reciver.socketId).emit("get-individual-chat", {
+            err,
+        });
+    }
+}
+
 const getreciver = async (io, data) => {
     try {
         const queryId = data.queryId;
-        console.log(queryId);
         const chat = await getChatModel.findOne({ queryId: queryId });
-        console.log(chat);
+        console.log('this is get reciver '+ chat.receiver);
         const reciver = await activeagent.findOne({ queryId: queryId });
         if (!chat || !reciver) {
             io.to(reciver.socketId).emit("get-receiver-id", {
@@ -49,7 +70,7 @@ const getreciver = async (io, data) => {
             });
             return;
         }
-        else if (!reciver) {
+        else if (reciver) {
             io.to(reciver.socketId).emit("get-receiver-id", {
                 receiver: chat.receiver,
             });
@@ -64,23 +85,23 @@ const getChatId = async (io, data) => {
     try {
         const queryId = data.queryId;
         console.log(queryId);
-        const chat = await getChatModel.findOne({ queryId: queryId });
-        console.log(chat);
         const reciver = await activeagent.findOne({ queryId: queryId });
-        if (!chat || !reciver) {
+        const chat = await getChatModel.findOne({ queryId: queryId });
+        console.log(reciver);
+        console.log(chat);
+        
+        if (!chat) {
             io.to(reciver.socketId).emit("get-chat-id", {
                 chatId: '',
             });
             return;
         }
-        else if (!reciver) {
-            io.to(reciver.socketId).emit("get-chat-id", {
-                chatId: chat.chatId,
-            });
-        }
+        io.to(reciver.socketId).emit("get-chat-id", {
+            chatId: chat.chatId,
+        });
     }
     catch (err) {
-        console.log(err);
+        console.log('get chatId error' + err);
     }
 }
 
@@ -107,7 +128,7 @@ const allUserChats = async (io, username) => {
     }
 }
 
-const sendmessage = async (io, data, username) => {
+const sendmessage = async (io, data) => {
     const chatId = data.chatId;
     const Messages = data.message;
     const reciverId = data.reciver;
@@ -117,14 +138,12 @@ const sendmessage = async (io, data, username) => {
         if (chat) {
             chat.Messages.push(Messages[0]);
             await chat.save();
-            // res.status(200).json(chat);
         }
         else {
             const chat = await chatModel.create({ chatId, Messages });
             if (!chat) {
                 return res.status(404).json({ message: 'Message not sent' });
             }
-            // res.status(200).json(chat);
         }
     }
     catch (err) {
@@ -136,6 +155,33 @@ const sendmessage = async (io, data, username) => {
         ChatId: chatId,
         Content: data.message,
         Sender: username,
+    });
+}
+
+const sendAgentmessage = async (io, data) => {
+    const receiver = data.receiver;
+    const queryId = data.queryId;
+    const sender = data.sender;
+    const message = data.message;
+    try {
+        const chat = await chatModel.findOne({ queryId: queryId });
+        if (chat) {
+            chat.Messages.push({ sender, message });
+            await chat.save();
+        }
+        else {
+            console.log('chat not found');
+        }
+    }
+    catch (err) {
+        console.log(err);
+    }
+
+    const reciver = await active.findOne({ userName: receiver });
+    console.log(reciver);
+    io.to(reciver.socketId).emit("receive-message", {
+        Content: data.message,
+        Sender: queryId,
     });
 }
 
@@ -164,11 +210,11 @@ const createChat = async (io, data) => {
             if (!notexist) {
                 return;
             }
-        }        
+        }
     }
     catch (err) {
         console.log(err);
     }
 }
 
-module.exports = { allchats, getchat, sendmessage, createChat, allUserChats, getChatId, getreciver };
+module.exports = { allchats, getchat, getAgentchat, sendmessage, sendAgentmessage, createChat, allUserChats, getChatId, getreciver };

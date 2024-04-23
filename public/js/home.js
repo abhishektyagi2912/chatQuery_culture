@@ -93,7 +93,7 @@ Socket.on('broadcast-msg', (data) => {
     acceptButton.addEventListener('click', () => {
         notificationCard.style.display = 'none';
         console.log('Accepted');
-        Socket.emit('create-chat', { staffmeber: user, agentId: data.agentId, chatId: data.chatId, queryId: data.queryId})
+        Socket.emit('accept', { staffmeber: user, agentId: data.agentId, chatId: data.chatId, queryId: data.queryId})
     });
 
     rejectButton.addEventListener('click', () => {
@@ -101,7 +101,6 @@ Socket.on('broadcast-msg', (data) => {
         console.log('Rejected');
     });
 });
-
 
 Socket.on('receive-message', (data) => {
     console.log(data);

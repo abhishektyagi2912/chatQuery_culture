@@ -1,4 +1,4 @@
-const { sendmessage, createChat, allUserChats, getchat, getChatId, getreciver } = require("../controllers/allchatcontroller");
+const { sendAgentmessage, sendmessage, createChat, allUserChats, getchat, getChatId, getreciver, getAgentchat } = require("../controllers/allchatcontroller");
 const active = require("../models/active");
 const activeagent = require("../models/activeagent");
 const chatmodel = require("../models/chatmodel");
@@ -51,48 +51,57 @@ const socket = async (io) => {
 
         socket.on('brodcast', async (data) => {
             const users = await active.find();
-            const chatId = bcrypt.hashSync(data.agentId + data.queryId, 10);
 
             try {
                 const chat = await getchatmodel.findOne({ queryId: data.queryId });
-                if (chat.receiver === '') {
-                    try {
-                        const chat = await chatmodel.findOne({ queryId: data.queryId });
-                        if(chat){
-                            chat.Messages.push({ sender: data.agentId, message: data.message });
-                            await chat.save();
+                if (!chat) {
+                    const chatId = bcrypt.hashSync(data.agentId + data.queryId, 10);
+                    const chats = await getchatmodel.create({ sender: data.agentId, chatId: chatId, queryId: data.queryId, receiver: '' });
+                    if (chats) {
+                        const createchatmodel = await chatmodel.findOne({ queryId: data.queryId });
+                        if (createchatmodel) {
+                            createchatmodel.Messages.push({ sender: data.agentId, message: data.message });
+                            await createchatmodel.save();
                         }
-                        else{
+                        else {
                             const chatcreated = await chatmodel.create({ chatId: chatId, queryId: data.queryId, Messages: [{ sender: data.agentId, message: data.message }] });
-                            if(chatcreated){
+                            if (chatcreated) {
                                 console.log('Chat created successfully');
                             }
                         }
-                    } catch (error) {
-                        console.log(error);
+                        users.forEach(async (user) => {
+                            const activeUser = await active.findOne({ userName: user.userName });
+
+                            if (activeUser) {
+                                io.to(activeUser.socketId).emit('broadcast-msg', { agentId: data.agentId, queryId: data.queryId, message: data.message, chatId: chatId });
+                            }
+                        });
+                    }
+                }
+                else if (chat.receiver === '') {
+                    const createchatmodel = await chatmodel.findOne({ queryId: data.queryId });
+                    if (createchatmodel) {
+                        createchatmodel.Messages.push({ sender: data.agentId, message: data.message });
+                        await createchatmodel.save();
                     }
                     users.forEach(async (user) => {
                         const activeUser = await active.findOne({ userName: user.userName });
 
                         if (activeUser) {
-                            io.to(activeUser.socketId).emit('broadcast-msg', { agentId: data.agentId, queryId: data.queryId, message: data.message, chatId: chat.chatId});
+                            io.to(activeUser.socketId).emit('broadcast-msg', { agentId: data.agentId, queryId: data.queryId, message: data.message, chatId: chat.chatId });
                         }
                     });
                 }
                 else {
-                    const chat = await getchatmodel.create({ sender: data.agentId, chatId: chatId, queryId: data.queryId, receiver: '' });
-                    if (!chat) {
-                        users.forEach(async (user) => {
-                            const activeUser = await active.findOne({ userName: user.userName });
-
-                            if (activeUser) {
-                                io.to(activeUser.socketId).emit('broadcast-msg', { agentId: data.agentId, queryId: data.queryId, message: data.message, chatId: chat.chatId });
-                            }
-                        });
+                    const createchatmodel = await chatmodel.findOne({ queryId: data.queryId });
+                    if (createchatmodel) {
+                        createchatmodel.Messages.push({ sender: data.agentId, message: data.message });
+                        await createchatmodel.save();
                     }
                 }
             }
             catch (e) {
+                console.log('brodcast error');
                 console.log(e);
             }
         });
@@ -109,10 +118,8 @@ const socket = async (io) => {
             await createChat(io, data);
         });
 
-        socket.on('reject', async (data) => {});
+        socket.on('reject', async (data) => { 
 
-        socket.on('create-chat', async (data) => {
-            await createChat(io, data);
         });
 
         socket.on('fetch-chat', async (data) => {
@@ -123,11 +130,23 @@ const socket = async (io) => {
             await getchat(io, data, username);
         });
 
+        socket.on('agent-chat', async (data) => {
+            await getAgentchat(io, data);
+        });
+
         socket.on('create-chat', async (data) => {
             await createChat(io, data);
         });
 
         socket.on("message-send", async (data) => {
+            await sendAgentmessage(
+                io,
+                data,
+                username
+            );
+        });
+
+        socket.on("message-staff-send", async (data) => {
             await sendmessage(
                 io,
                 data,
