@@ -37,7 +37,6 @@ const getchat = async (io, data, userName) => {
 }
 
 const getAgentchat = async (io, data) => {
-    console.log(data);
     const reciver = await activeagent.findOne({ queryId: data.queryId });
     try {
         const chat = await chatModel.findOne({ chatId: data.chatId });
@@ -62,7 +61,6 @@ const getreciver = async (io, data) => {
     try {
         const queryId = data.queryId;
         const chat = await getChatModel.findOne({ queryId: queryId });
-        console.log('this is get reciver '+ chat.receiver);
         const reciver = await activeagent.findOne({ queryId: queryId });
         if (!chat || !reciver) {
             io.to(reciver.socketId).emit("get-receiver-id", {
@@ -84,11 +82,8 @@ const getreciver = async (io, data) => {
 const getChatId = async (io, data) => {
     try {
         const queryId = data.queryId;
-        console.log(queryId);
         const reciver = await activeagent.findOne({ queryId: queryId });
         const chat = await getChatModel.findOne({ queryId: queryId });
-        console.log(reciver);
-        console.log(chat);
         
         if (!chat) {
             io.to(reciver.socketId).emit("get-chat-id", {
@@ -178,7 +173,6 @@ const sendAgentmessage = async (io, data) => {
     }
 
     const reciver = await active.findOne({ userName: receiver });
-    console.log(reciver);
     io.to(reciver.socketId).emit("receive-message", {
         Content: data.message,
         Sender: queryId,

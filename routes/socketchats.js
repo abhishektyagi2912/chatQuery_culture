@@ -45,7 +45,6 @@ const socket = async (io) => {
         }
 
         socket.on('createConnection', (data) => {
-            console.log('Message from client:', data);
             socket.emit('connectionCreated', { message: 'Connection created successfully' });
         });
 
@@ -101,7 +100,6 @@ const socket = async (io) => {
                 }
             }
             catch (e) {
-                console.log('brodcast error');
                 console.log(e);
             }
         });
