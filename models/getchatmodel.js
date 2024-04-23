@@ -12,17 +12,16 @@ const getchatSchema = new mongoose.Schema({
         unique: true,
         required: [true, 'ChatId is required'],
     },
-    queyId :{
+    queryId :{
         type: String,
-        ref: 'QueryId',
+        ref: 'queryId',
         unique: true,
-        required: [true, 'QueryId is required'],
+        required: [true, 'queryId is required'],
     },
     receiver :{
         type: String,
         ref: 'receiver',
-        required: [true, 'Receiver is required'],
     }
 });
 
-module.exports = mongoose.model('getChatId', getchatSchema);
+module.exports = mongoose.model('getChats', getchatSchema);

@@ -9,7 +9,7 @@ const Socket = io('http://localhost:3000', {
     }
 });
 
-Socket.emit('fetch-chat_id', { data: sessionStorage.getItem('queryId') });
+Socket.emit('fetch-chat_id', { queryId });
 
 Socket.on('get-chat-id', (data) => {
     console.log('Chat ID:', data.chatId);
@@ -55,20 +55,30 @@ document.addEventListener('DOMContentLoaded', () => {
         // Scroll to bottom of chat container
         chatConversation.scrollTop = chatConversation.scrollHeight;
         if (chatId !== '') {
-            const newMessage = {
-                chatId: chatId,
-                reciver: 'Abhishek Tyagi',
-                message: [
-                    {
-                        'sender': agentId,
-                        'message': message
-                    }
-                ]
-            };
-            Socket.emit('message-send', newMessage);
+            Socket.emit('check-reciver', { queryId });
+            Socket.on('get-receiver-id', (data) => {
+                console.log('Receiver:', data.receiver);
+                if (data.receiver !== '') {
+                    Socket.emit('brodcast', { agentId: agentId, queryId: queryId, message: message });
+                }
+                else {
+                    const newMessage = {
+                        chatId: chatId,
+                        reciver: 'Abhishek Tyagi',
+                        message: [
+                            {
+                                'sender': agentId,
+                                'message': message
+                            }
+                        ]
+                    };
+                    // Socket.emit('message-send', newMessage);
+                    console.log(newMessage);
+                }
+            })
         }
         else {
-            Socket.emit('brodcast', { agentId: agentId, message: message });
+            Socket.emit('brodcast', { agentId: agentId, queryId: queryId, message: message });
         }
     }
 });

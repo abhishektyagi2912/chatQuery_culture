@@ -93,7 +93,7 @@ Socket.on('broadcast-msg', (data) => {
     acceptButton.addEventListener('click', () => {
         notificationCard.style.display = 'none';
         console.log('Accepted');
-        
+        Socket.emit('create-chat', { staffmeber: user, agentId: data.agentId, chatId: data.chatId, queryId: data.queryId})
     });
 
     rejectButton.addEventListener('click', () => {

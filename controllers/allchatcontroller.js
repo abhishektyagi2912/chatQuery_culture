@@ -36,26 +36,51 @@ const getchat = async (io, data, userName) => {
     }
 }
 
+const getreciver = async (io, data) => {
+    try {
+        const queryId = data.queryId;
+        console.log(queryId);
+        const chat = await getChatModel.findOne({ queryId: queryId });
+        console.log(chat);
+        const reciver = await activeagent.findOne({ queryId: queryId });
+        if (!chat || !reciver) {
+            io.to(reciver.socketId).emit("get-receiver-id", {
+                receiver: '',
+            });
+            return;
+        }
+        else if (!reciver) {
+            io.to(reciver.socketId).emit("get-receiver-id", {
+                receiver: chat.receiver,
+            });
+        }
+    }
+    catch (err) {
+        console.log(err);
+    }
+}
+
 const getChatId = async (io, data) => {
     try {
-        const queryId = data.data;
-        const chat = await getChatModel.findOne({ queyId: queryId });
+        const queryId = data.queryId;
+        console.log(queryId);
+        const chat = await getChatModel.findOne({ queryId: queryId });
+        console.log(chat);
         const reciver = await activeagent.findOne({ queryId: queryId });
-        if (!chat) {
+        if (!chat || !reciver) {
             io.to(reciver.socketId).emit("get-chat-id", {
                 chatId: '',
             });
             return;
         }
-
-        io.to(reciver.socketId).emit("get-chat-id", {
-            chatId: chat.chatId,
-        });
+        else if (!reciver) {
+            io.to(reciver.socketId).emit("get-chat-id", {
+                chatId: chat.chatId,
+            });
+        }
     }
     catch (err) {
-        io.to(reciver.socketId).emit("get-chat-id", {
-            err,
-        });
+        console.log(err);
     }
 }
 
@@ -114,34 +139,36 @@ const sendmessage = async (io, data, username) => {
     });
 }
 
-const createChat = async (req, res) => {
-    const { sender, receiver } = req.body;
-    const chatId = bcrypt.hashSync(sender + receiver, 10);
-    const existingChat = await allchatmodel.findOne({
-        UserName: sender,
-        'participant.receiver': receiver,
-    });
+const createChat = async (io, data) => {
+    const { staffmeber, agentId, chatId, queryId } = data;
 
-    if (existingChat) {
-        return res.status(400).json({ message: 'Chat already exists' });
-    }
+    try {
+        const chat = await getChatModel.findOne({ queryId: queryId });
+        if (chat) {
+            chat.receiver = staffmeber;
+            await chat.save();
+        }
 
-    if (sender === receiver) {
-        return res.status(400).json({ message: 'You cannot chat with yourself' });
-    }
+        const queryIdExists = await allchatmodel.exists({ 'participant.receiver': queryId });
+        if (queryIdExists) {
+            return 'QueryId already exists';
+        }
 
-    const hasexist = await allchatmodel.findOne({ UserName: sender });
-    if (hasexist) {
-        hasexist.participant.unshift({ receiver, chatId });
-        await hasexist.save();
-        return res.status(200).json(hasexist);
+        const hasexist = await allchatmodel.findOne({ UserName: staffmeber });
+        if (hasexist) {
+            hasexist.participant.unshift({ receiver: queryId, chatId });
+            await hasexist.save();
+            return 'Chat created';
+        } else {
+            const notexist = await allchatmodel.create({ UserName: staffmeber, participant: [{ receiver: queryId, chatId }], time: new Date() });
+            if (!notexist) {
+                return;
+            }
+        }        
     }
-
-    const chat = await allchatmodel.create({ UserName: sender, participant: [{ receiver, chatId }], time: new Date() });
-    if (!chat) {
-        return res.status(404).json({ message: 'Chat not created' });
+    catch (err) {
+        console.log(err);
     }
-    res.status(200).json(chat);
 }
 
-module.exports = { allchats, getchat, sendmessage, createChat, allUserChats, getChatId };
+module.exports = { allchats, getchat, sendmessage, createChat, allUserChats, getChatId, getreciver };

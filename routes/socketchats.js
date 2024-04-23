@@ -1,6 +1,9 @@
-const { sendmessage, createChat, allUserChats, getchat, getChatId } = require("../controllers/allchatcontroller");
+const { sendmessage, createChat, allUserChats, getchat, getChatId, getreciver } = require("../controllers/allchatcontroller");
 const active = require("../models/active");
 const activeagent = require("../models/activeagent");
+const chatmodel = require("../models/chatmodel");
+const getchatmodel = require("../models/getchatmodel");
+const bcrypt = require("bcrypt");
 
 const socket = async (io) => {
     await io.on('connection', async (socket) => {
@@ -36,7 +39,7 @@ const socket = async (io) => {
             } catch (error) {
                 console.log("Error in socket:", error);
             }
-        } 
+        }
         else {
             console.log("username are undefined.");
         }
@@ -48,21 +51,67 @@ const socket = async (io) => {
 
         socket.on('brodcast', async (data) => {
             const users = await active.find();
+            const chatId = bcrypt.hashSync(data.agentId + data.queryId, 10);
 
-            users.forEach(async (user) => {
-                const activeUser = await active.findOne({ userName: user.userName });
+            try {
+                const chat = await getchatmodel.findOne({ queryId: data.queryId });
+                if (chat.receiver === '') {
+                    try {
+                        const chat = await chatmodel.findOne({ queryId: data.queryId });
+                        if(chat){
+                            chat.Messages.push({ sender: data.agentId, message: data.message });
+                            await chat.save();
+                        }
+                        else{
+                            const chatcreated = await chatmodel.create({ chatId: chatId, queryId: data.queryId, Messages: [{ sender: data.agentId, message: data.message }] });
+                            if(chatcreated){
+                                console.log('Chat created successfully');
+                            }
+                        }
+                    } catch (error) {
+                        console.log(error);
+                    }
+                    users.forEach(async (user) => {
+                        const activeUser = await active.findOne({ userName: user.userName });
 
-                if (activeUser) {
-                    io.to(activeUser.socketId).emit('broadcast-msg', { agentId: data.agentId, message: data.message });
+                        if (activeUser) {
+                            io.to(activeUser.socketId).emit('broadcast-msg', { agentId: data.agentId, queryId: data.queryId, message: data.message, chatId: chat.chatId});
+                        }
+                    });
                 }
-            });
+                else {
+                    const chat = await getchatmodel.create({ sender: data.agentId, chatId: chatId, queryId: data.queryId, receiver: '' });
+                    if (!chat) {
+                        users.forEach(async (user) => {
+                            const activeUser = await active.findOne({ userName: user.userName });
+
+                            if (activeUser) {
+                                io.to(activeUser.socketId).emit('broadcast-msg', { agentId: data.agentId, queryId: data.queryId, message: data.message, chatId: chat.chatId });
+                            }
+                        });
+                    }
+                }
+            }
+            catch (e) {
+                console.log(e);
+            }
         });
 
         socket.on('fetch-chat_id', async (data) => {
             await getChatId(io, data);
         });
 
+        socket.on('check-reciver', async (data) => {
+            await getreciver(io, data);
+        });
+
         socket.on('accept', async (data) => {
+            await createChat(io, data);
+        });
+
+        socket.on('reject', async (data) => {});
+
+        socket.on('create-chat', async (data) => {
             await createChat(io, data);
         });
 
@@ -72,6 +121,10 @@ const socket = async (io) => {
 
         socket.on('fetch-individual-chat', async (data) => {
             await getchat(io, data, username);
+        });
+
+        socket.on('create-chat', async (data) => {
+            await createChat(io, data);
         });
 
         socket.on("message-send", async (data) => {
