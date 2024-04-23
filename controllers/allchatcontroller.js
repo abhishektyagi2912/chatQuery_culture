@@ -123,33 +123,24 @@ const allUserChats = async (io, username) => {
     }
 }
 
-const sendmessage = async (io, data) => {
+const sendmessage = async (io, data, username) => {
     const chatId = data.chatId;
     const Messages = data.message;
     const reciverId = data.reciver;
-    console.log(Messages);
     try {
         const chat = await chatModel.findOne({ chatId: chatId });
         if (chat) {
             chat.Messages.push(Messages[0]);
             await chat.save();
         }
-        else {
-            const chat = await chatModel.create({ chatId, Messages });
-            if (!chat) {
-                return res.status(404).json({ message: 'Message not sent' });
-            }
-        }
     }
     catch (err) {
         console.log(err);
     }
-    const reciver = await active.findOne({ userName: reciverId });
+    const reciver = await activeagent.findOne({ userName: reciverId });
     // console.log(reciver);
     io.to(reciver.socketId).emit("receive-message", {
-        ChatId: chatId,
-        Content: data.message,
-        Sender: username,
+        Chat: data.message,
     });
 }
 

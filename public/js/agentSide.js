@@ -22,10 +22,6 @@ Socket.on('get-chat-id', (data) => {
     }
 });
 
-Socket.on('recive-message', (data) => {
-    console.log('Message:', data);
-});
-
 Socket.on('get-receiver-id', (data) => {
     receiver = data.receiver;
 });
@@ -96,6 +92,15 @@ document.addEventListener('DOMContentLoaded', () => {
     Socket.on('get-individual-chat', (data) => {
         console.log('Individual Chat:', data);
         const chats = data.chat;
+        chats.forEach((message) => {
+            const sender = (message.sender === queryId) ? 'sender' : 'receiver';
+            appendMessages(sender, message.message);
+        });
+    });
+
+    Socket.on('receive-message', (data) => {
+        console.log('Message:', data);
+        const chats = data.Chat;
         chats.forEach((message) => {
             const sender = (message.sender === queryId) ? 'sender' : 'receiver';
             appendMessages(sender, message.message);

@@ -99,6 +99,7 @@ const socket = async (io) => {
                 }
             }
             catch (e) {
+                console.log('Error in brodcast:');
                 console.log(e);
             }
         });
@@ -118,7 +119,7 @@ const socket = async (io) => {
         socket.on('reject', async (data) => { 
 
         });
-
+        
         socket.on('fetch-chat', async (data) => {
             await allUserChats(io, username, data);
         });
@@ -165,5 +166,4 @@ const socket = async (io) => {
         });
     });
 };
-
 module.exports = socket;

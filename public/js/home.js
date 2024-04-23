@@ -1,5 +1,7 @@
 const user = sessionStorage.getItem('userName');
 const buttons = document.querySelectorAll('.btn');
+var chatId = '';
+var reciver = '';
 
 const Socket = io('http://localhost:3000', {
     query: {
@@ -102,48 +104,25 @@ Socket.on('broadcast-msg', (data) => {
     });
 });
 
-Socket.on('receive-message', (data) => {
-    console.log(data);
-});
+document.addEventListener('DOMContentLoaded', () => {
+    const username = document.getElementById('userName');
+    username.textContent = user;
 
-const connectButton = document.getElementById('connectButton');
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('contact')) {
 
-function createConnection(e) {
-    e.preventDefault();
-    Socket.emit('createConnection', { data: 'Hello from client' });
-    console.log('Button clicked');
-    console.log(Socket.id);
-    const newMessage = {
-        chatId: '$2b$10$4PdppwJ6i8hsUZVQrZG2WeFRVYpXW8DZg6h2gcnrav9.JFUlomF.C',
-        reciver: 'Abhishek Tyagi',
-        message: [
-            {
-                'sender': 'kk',
-                'message': 'chutiya h tu smjha'
-            }
-        ]
-    };
-    Socket.emit('message-send', newMessage)
-}
+            chatId = e.target.getAttribute('data-id');
+            reciver = e.target.getAttribute('data-receiver');
 
-const username = document.getElementById('userName');
-username.textContent = user;
+            //call the socket to fetch the individual chat
+            Socket.emit('fetch-individual-chat', { chatId: chatId });
 
-document.addEventListener('click', (e) => {
-    if (e.target.classList.contains('contact')) {
-
-        const chatId = e.target.getAttribute('data-id');
-        const reciver = e.target.getAttribute('data-receiver');
-
-        //call the socket to fetch the individual chat
-        Socket.emit('fetch-individual-chat', { chatId: chatId });
-
-        const chatContainer = document.getElementById('chatConversation');
-        chatContainer.innerHTML = '';
-        // Update the chat widget
-        const chatWidgetWrapper = document.createElement('div');
-        chatWidgetWrapper.classList.add('d-flex', 'align-items-center');
-        chatWidgetWrapper.innerHTML = `
+            const chatContainer = document.getElementById('chatConversation');
+            chatContainer.innerHTML = '';
+            // Update the chat widget
+            const chatWidgetWrapper = document.createElement('div');
+            chatWidgetWrapper.classList.add('d-flex', 'align-items-center');
+            chatWidgetWrapper.innerHTML = `
             <img src="https://robohash.org/1.png" class="didi-3" alt="Your Image">
             <p class="ms-2 mb-0 didi-name">${reciver} </p>
             <!--- <span class="green-dot"></span> --->
@@ -151,63 +130,71 @@ document.addEventListener('click', (e) => {
                 <i class="ri-search-line"></i>
             </div>`;
 
-        // Clear previous chat widget content
-        const previousChatWidget = document.getElementById('chatWidgetWrapper');
-        if (previousChatWidget) {
-            previousChatWidget.innerHTML = '';
-        }
+            // Clear previous chat widget content
+            const previousChatWidget = document.getElementById('chatWidgetWrapper');
+            if (previousChatWidget) {
+                previousChatWidget.innerHTML = '';
+            }
 
-        document.getElementById('chatWidgetWrapper').appendChild(chatWidgetWrapper);
+            document.getElementById('chatWidgetWrapper').appendChild(chatWidgetWrapper);
 
-        const chatInputWidget = document.createElement('div');
-        chatInputWidget.classList.add('chat-input', 'mt-2', 'pt-2', 'pb-2');
-        chatInputWidget.id = 'chatInputWidget';
+            const chatInputWidget = document.createElement('div');
+            chatInputWidget.classList.add('chat-input', 'mt-2', 'pt-2', 'pb-2');
+            chatInputWidget.id = 'chatInputWidget';
 
-        const form = document.createElement('form');
-        form.classList.add('chat-box', 'd-flex', 'align-items-center');
+            const form = document.createElement('form');
+            form.classList.add('chat-box', 'd-flex', 'align-items-center');
 
-        form.innerHTML = `
-                <input type="text" placeholder="Search people..." class="form-control rounded border">
-                <input type="text" placeholder="Type your message..." class="form-control mt-2 rounded border"
-              id="messageInput">
-            <div class="icon-container ms-auto">
-              <i class="ri-emoji-sticker-line"></i>
-              <i class="ri-camera-2-line"></i>
-              <div class="send-icon-container" id="sendMessageButton">
-                <i class="ri ri-send-plane-fill ri-xl"></i>
-              </div>
-            </div>
+            form.innerHTML = `
+                <input type="text" id="messageInput" placeholder="Type your message..." class="form-control rounded border">
+                    <div class="icon-container ms-auto">
+                        <i class="ri-emoji-sticker-line"></i>
+                        <i class="ri-camera-2-line"></i>
+                        <div class="send-icon-container" id="connectButton", style:"cursor:pointer;">
+                            <i class="ri ri-send-plane-fill ri-xl"></i>
+                        </div>
+                    </div>
             `;
 
-        chatInputWidget.appendChild(form);
+            chatInputWidget.appendChild(form);
 
-        // Clear previous chat input widget content
-        const previousChatInputWidget = document.getElementById('chatInputWidget');
-        if (previousChatInputWidget) {
-            previousChatInputWidget.innerHTML = '';
+            // Clear previous chat input widget content
+            const previousChatInputWidget = document.getElementById('chatInputWidget');
+            if (previousChatInputWidget) {
+                previousChatInputWidget.innerHTML = '';
+            }
+
+            document.getElementById('chatInputWidget').appendChild(chatInputWidget);
         }
 
-        document.getElementById('chatInputWidget').appendChild(chatInputWidget);
+        const connectButton = document.getElementById('connectButton');
+        console.log('connectButton:', connectButton);
 
-    }
-});
+        const messageInput = document.getElementById('messageInput');
+        console.log('messageInput:', messageInput);
 
-document.addEventListener('DOMContentLoaded', () => {
-    const messageForm = document.getElementById('messageForm');
-    const messageInput = document.getElementById('messageInput');
-    const chatConversation = document.getElementById('chatConversation');
-
-    // Event listener for form submission
-    messageForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        const message = messageInput.value.trim();
-        if (message !== '') {
-            appendMessage('sender', message);
-            messageInput.value = '';
-        }
+        // Add event listener for clicking the send icon container
+        connectButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            console.log('Message:', message);
+            if (message !== '') {
+                const newMessage = {
+                    chatId: chatId,
+                    receiver: reciver,
+                    message: [
+                        {
+                            'sender': user,
+                            'message': message,
+                        }
+                    ]
+                };
+                Socket.emit('message-staff-send', newMessage);
+                appendMessage(user , message);
+                messageInput.value = '';
+            }
+        });
     });
-
     // Function to append message to the chat container
     function appendMessage(sender, message) {
         const chatBubble = document.createElement('div');
@@ -218,36 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const messageContainer = document.createElement('div');
         messageContainer.classList.add('message');
-        messageContainer.innerHTML = `<p class="chats-${sender === 'sender' ? 's' : 'r'}">${message}</p>`;
-
-        senderInfo.appendChild(messageContainer);
-        chatBubble.appendChild(senderInfo);
-        chatConversation.appendChild(chatBubble);
-
-        // Scroll to bottom of chat container
-        chatConversation.scrollTop = chatConversation.scrollHeight;
-        if (chatId !== '' || receiver !== '') {
-            console.log(receiver);
-            console.log('Sending message');
-            Socket.emit('message-send', { receiver: receiver, queryId: queryId, message: message, sender: queryId });
-        }
-        else {
-            console.log(chatId, receiver);
-            console.log('Broadcasting message');
-            Socket.emit('brodcast', { agentId: agentId, queryId: queryId, message: message });
-        }
-    }
-
-    function appendMessages(sender, message) {
-        const chatBubble = document.createElement('div');
-        chatBubble.classList.add('chat-bubble', sender);
-
-        const senderInfo = document.createElement('div');
-        senderInfo.classList.add('sender-info');
-
-        const messageContainer = document.createElement('div');
-        messageContainer.classList.add('message');
-        messageContainer.innerHTML = `<p class="chats-${sender === 'sender' ? 's' : 'r'}">${message}</p>`;
+        messageContainer.innerHTML = `<p class="chats-${sender === user ? 's' : 'r'}">${message}</p>`;
 
         senderInfo.appendChild(messageContainer);
         chatBubble.appendChild(senderInfo);
@@ -255,12 +213,9 @@ document.addEventListener('DOMContentLoaded', () => {
         chatConversation.scrollTop = chatConversation.scrollHeight;
     }
 
-    Socket.on('get-individual-chat', (data) => {
-        console.log('Individual Chat:', data);
-        const chats = data.chat;
-        chats.forEach((message) => {
-            const sender = (message.sender === queryId) ? 'sender' : 'receiver';
-            appendMessages(sender, message.message);
-        });
+    // Socket event to handle received messages
+    Socket.on('receive-message', (data) => {
+        console.log(data);
+        appendMessage(data.Sender, data.Content);
     });
 });
