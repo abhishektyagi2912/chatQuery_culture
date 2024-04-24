@@ -6,7 +6,6 @@ var receiver = '';
 const Socket = io('http://localhost:3000', {
     query: {
         username: agentId,
-        // queryId: 'CHAGQ10011213123141',
         queryId: queryId,
     }
 });
@@ -36,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
 
         const message = messageInput.value.trim();
-        if (message !== '') {
+        if (message !== '' && queryId !== null && agentId !== null) {
             appendMessage('sender', message);
             messageInput.value = '';
         }
@@ -67,8 +66,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         else {
             console.log(chatId, receiver);
-            console.log('Broadcasting message');
-            Socket.emit('brodcast', { agentId: agentId, queryId: queryId, message: message });
+            if (queryId !== null && agentId !== null) {
+                console.log('Broadcasting message');
+                Socket.emit('brodcast', { agentId: agentId, queryId: queryId, message: message });
+            }
+            else{
+                // console.log('Error in broadcasting message');
+            }
         }
     }
 

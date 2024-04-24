@@ -1,5 +1,6 @@
-const user = sessionStorage.getItem('userName');
+const user = localStorage.getItem('userName');
 const buttons = document.querySelectorAll('.btn');
+const token = localStorage.getItem('token');
 var chatId = '';
 var reciver = '';
 
@@ -9,12 +10,12 @@ const Socket = io('http://localhost:3000', {
     }
 });
 
-Socket.emit('fetch-chat', { data: localStorage.getItem('userName') });
-
 Socket.on('connect', () => {
     console.log('Connected to server');
     // You can send messages or emit events here
 });
+
+Socket.emit('fetch-chat', { token });
 
 Socket.on('get-chat', (data) => {
 
@@ -43,7 +44,6 @@ Socket.on('get-chat', (data) => {
 });
 
 Socket.on('get-individual-chat', (data) => {
-
     const chatContainer = document.getElementById('chatConversation');
     chatContainer.innerHTML = '';
 
@@ -69,6 +69,10 @@ Socket.on('get-individual-chat', (data) => {
 
 Socket.on('disconnect', () => {
     console.log('Disconnected from server');
+});
+
+Socket.on('handle-invalid-token', (data) => {
+    console.log('Error:', data.message);
 });
 
 Socket.on('connectionCreated', (data) => {

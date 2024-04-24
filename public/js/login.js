@@ -1,4 +1,3 @@
-
 const loginButton = document.getElementById("loginButton");
 
 loginButton.addEventListener("click", async (e) => {
@@ -23,9 +22,9 @@ loginButton.addEventListener("click", async (e) => {
 
     if (response.status === 200) {
       response.json().then((data) => {
-        sessionStorage.setItem('token', data.token);
-        sessionStorage.setItem('email', email);
-        sessionStorage.setItem('userName', data.userName);
+        localStorage.setItem('token', data.token);
+        // localStorage.setItem('email', email);
+        localStorage.setItem('userName', data.userName);
         token = data.token;
         location.href = '/staffquery';
       });

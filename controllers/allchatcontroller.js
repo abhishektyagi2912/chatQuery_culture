@@ -1,8 +1,9 @@
 const activeagent = require('../models/activeagent');
 var chatModel = require('../models/chatmodel');
 var getChatModel = require('../models/getchatmodel');
-const bcrypt = require("bcrypt");
+require("dotenv").config();
 const jwt = require("jsonwebtoken");
+SECRET_KEY = process.env.SECRET_KEY;
 const allchatmodel = require('../models/allchatmodel');
 const active = require('../models/active');
 
@@ -80,6 +81,15 @@ const getreciver = async (io, data) => {
 }
 
 const getChatId = async (io, data) => {
+    if(data.queryId === '' || data.queryId === null || data.queryId === undefined) {
+        // io.emit("handle-undefined-queryId", {
+        //     message: "Query ID is undefined.",
+        // });
+        const reciver = await activeagent.findOne({ queryId: data.queryId });
+        console.log(reciver);
+        // reciver.deleteOne();
+        return;
+    }
     try {
         const queryId = data.queryId;
         const reciver = await activeagent.findOne({ queryId: queryId });
@@ -100,7 +110,16 @@ const getChatId = async (io, data) => {
     }
 }
 
-const allUserChats = async (io, username) => {
+const allUserChats = async (io, username, data) => {
+    console.log(data.token);
+    const fetchToken = jwt.verify(data.token, SECRET_KEY);
+    // var username = fetchToken.userName;
+    if (fetchToken.id !== username) {
+        io.emit("handle-invalid-token", {
+            message: "Invalid token",
+        });
+        return;
+    }
     const reciver = await active.findOne({ userName: username });
     try {
         const chat = await allchatmodel.findOne({ UserName: username });
@@ -138,7 +157,7 @@ const sendmessage = async (io, data, username) => {
         console.log(err);
     }
     const reciver = await activeagent.findOne({ userName: reciverId });
-    // console.log(reciver);
+    console.log(reciver);
     io.to(reciver.socketId).emit("receive-message", {
         Chat: data.message,
     });
