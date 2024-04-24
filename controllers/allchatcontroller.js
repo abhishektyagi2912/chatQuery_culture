@@ -145,7 +145,7 @@ const allUserChats = async (io, username, data) => {
 const sendmessage = async (io, data, username) => {
     const chatId = data.chatId;
     const Messages = data.message;
-    const reciverId = data.reciver;
+    const reciverId = data.receiver;
     try {
         const chat = await chatModel.findOne({ chatId: chatId });
         if (chat) {
@@ -156,7 +156,7 @@ const sendmessage = async (io, data, username) => {
     catch (err) {
         console.log(err);
     }
-    const reciver = await activeagent.findOne({ userName: reciverId });
+    const reciver = await activeagent.findOne({ queryId: reciverId });
     console.log(reciver);
     io.to(reciver.socketId).emit("receive-message", {
         Chat: data.message,

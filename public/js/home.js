@@ -43,30 +43,6 @@ Socket.on('get-chat', (data) => {
     });
 });
 
-Socket.on('get-individual-chat', (data) => {
-    const chatContainer = document.getElementById('chatConversation');
-    chatContainer.innerHTML = '';
-
-    const chats = data.chat;
-    chats.forEach((message) => {
-        const isSender = message.sender === user;
-
-        const chatBubble = document.createElement('div');
-        chatBubble.classList.add('chat-bubble', isSender ? 'sender' : 'receiver');
-
-        const chatInfo = document.createElement('div');
-        chatInfo.classList.add(isSender ? 'sender-info' : 'receiver-info');
-
-        const messageContainer = document.createElement('div');
-        messageContainer.classList.add('message', isSender ? 'sender' : 'receiver');
-        messageContainer.innerHTML = `<p class="chats-${isSender ? 's' : 'r'}">${message.message}</p>`;
-
-        chatInfo.appendChild(messageContainer);
-        chatBubble.appendChild(chatInfo);
-        chatContainer.appendChild(chatBubble);
-    });
-});
-
 Socket.on('disconnect', () => {
     console.log('Disconnected from server');
 });
@@ -117,9 +93,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
             chatId = e.target.getAttribute('data-id');
             reciver = e.target.getAttribute('data-receiver');
+            console.log('Chat ID:', chatId);
+            console.log('Receiver:', reciver);
 
             //call the socket to fetch the individual chat
             Socket.emit('fetch-individual-chat', { chatId: chatId });
+            
+            Socket.on('get-individual-chat', (data) => {
+                const chatContainer = document.getElementById('chatConversation');
+                chatContainer.innerHTML = '';
+            
+                const chats = data.chat;
+                chats.forEach((message) => {
+                    const isSender = message.sender === user;
+            
+                    const chatBubble = document.createElement('div');
+                    chatBubble.classList.add('chat-bubble', isSender ? 'sender' : 'receiver');
+            
+                    const chatInfo = document.createElement('div');
+                    chatInfo.classList.add(isSender ? 'sender-info' : 'receiver-info');
+            
+                    const messageContainer = document.createElement('div');
+                    messageContainer.classList.add('message', isSender ? 'sender' : 'receiver');
+                    messageContainer.innerHTML = `<p class="chats-${isSender ? 's' : 'r'}">${message.message}</p>`;
+            
+                    chatInfo.appendChild(messageContainer);
+                    chatBubble.appendChild(chatInfo);
+                    chatContainer.appendChild(chatBubble);
+                });
+            });
 
             const chatContainer = document.getElementById('chatConversation');
             chatContainer.innerHTML = '';
