@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Scroll to bottom of chat container
         chatConversation.scrollTop = chatConversation.scrollHeight;
-        if (chatId !== '' && receiver !== '') {
+        if (chatId !== '' || receiver !== '') {
             console.log(receiver);
             console.log('Sending message');
             Socket.emit('message-send', { receiver: receiver, queryId: queryId, message: message, sender: queryId });
