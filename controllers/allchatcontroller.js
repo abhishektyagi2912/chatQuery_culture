@@ -81,7 +81,7 @@ const getreciver = async (io, data) => {
 }
 
 const getChatId = async (io, data) => {
-    if(data.queryId === '' || data.queryId === null || data.queryId === undefined) {
+    if (data.queryId === '' || data.queryId === null || data.queryId === undefined) {
         // io.emit("handle-undefined-queryId", {
         //     message: "Query ID is undefined.",
         // });
@@ -94,7 +94,7 @@ const getChatId = async (io, data) => {
         const queryId = data.queryId;
         const reciver = await activeagent.findOne({ queryId: queryId });
         const chat = await getChatModel.findOne({ queryId: queryId });
-        
+
         if (!chat) {
             io.to(reciver.socketId).emit("get-chat-id", {
                 chatId: '',
@@ -158,9 +158,11 @@ const sendmessage = async (io, data, username) => {
     }
     const reciver = await activeagent.findOne({ queryId: reciverId });
     console.log(reciver);
-    io.to(reciver.socketId).emit("receive-message", {
-        Chat: data.message,
-    });
+    if (reciver) {
+        io.to(reciver.socketId).emit("receive-message", {
+            Chat: data.message,
+        });
+    }
 }
 
 const sendAgentmessage = async (io, data) => {
@@ -183,10 +185,12 @@ const sendAgentmessage = async (io, data) => {
     }
 
     const reciver = await active.findOne({ userName: receiver });
-    io.to(reciver.socketId).emit("receive-message", {
-        Content: data.message,
-        Sender: queryId,
-    });
+    if (reciver) {
+        io.to(reciver.socketId).emit("receive-message", {
+            Content: data.message,
+            Sender: queryId,
+        });
+    }
 }
 
 const createChat = async (io, data) => {

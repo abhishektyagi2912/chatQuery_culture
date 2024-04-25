@@ -63,7 +63,13 @@ const socket = async (io) => {
                         }
                         else {
                             const chatcreated = await chatmodel.create({ chatId: chatId, queryId: data.queryId, Messages: [{ sender: data.queryId, message: data.message }] });
+                            const reciver = await activeagent.findOne({ queryId: queryId });
                             if (chatcreated) {
+                                if (reciver) {
+                                    io.to(reciver.socketId).emit("get-chat-id", {
+                                        chatId: chatId,
+                                    });
+                                }
                                 console.log('Chat created successfully');
                             }
                         }
@@ -116,10 +122,10 @@ const socket = async (io) => {
             await createChat(io, data);
         });
 
-        socket.on('reject', async (data) => { 
+        socket.on('reject', async (data) => {
 
         });
-        
+
         socket.on('fetch-chat', async (data) => {
             await allUserChats(io, username, data);
         });
