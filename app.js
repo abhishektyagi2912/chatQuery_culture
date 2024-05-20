@@ -10,6 +10,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const middleware = require('./middlewares/auth');
 const socket = require('./routes/socketchats');
+const current_staffrouter = require('./routes/current_staff');
 
 dotenv.config();
 app.set('view engine', 'ejs');
@@ -20,6 +21,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/auth', authRouter);
 app.use('/chat', allchatRouter);
+app.use('/safffDuty',current_staffrouter);
 
 app.use('/staffquery', middleware, (req,res)=>{
   res.render('home');
