@@ -1,9 +1,12 @@
+const moment = require("moment-timezone");
 const { sendAgentmessage, sendmessage, createChat, allUserChats, getchat, getChatId, getreciver, getAgentchat } = require("../controllers/allchatcontroller");
 const active = require("../models/active");
 const activeagent = require("../models/activeagent");
 const chatmodel = require("../models/chatmodel");
 const getchatmodel = require("../models/getchatmodel");
 const bcrypt = require("bcrypt");
+const current_staff = require("../models/current_staff");
+const allchatmodel = require("../models/allchatmodel");
 
 const socket = async (io) => {
     await io.on('connection', async (socket) => {
@@ -107,6 +110,121 @@ const socket = async (io) => {
             catch (e) {
                 console.log('Error in brodcast:');
                 console.log(e);
+            }
+        });
+
+        const updateParticipantList = async (userName, queryId, chatId) => {
+            let allChat = await allchatmodel.findOne({ UserName: userName });
+            if (allChat) {
+                allChat.participant.unshift({ receiver: queryId, chatId });
+                await allChat.save();
+            } else {
+                allChat = new allchatmodel({ UserName: userName, participant: [{ receiver: queryId, chatId }] });
+                await allChat.save();
+            }
+            return allChat;
+        };
+
+        socket.on('auto-assign', async (data) => {
+            try {
+                const time = data.time;
+                const userTimeDate = new Date(time);
+                const istTime = moment(userTimeDate).tz('Asia/Kolkata');
+                const formattedIstTime = istTime.format('HH:mm:ss');
+
+                console.log('User time in IST:', formattedIstTime);
+
+                const staffDuty = await current_staff.findOne({
+                    'staffTime.startTime': { $lte: formattedIstTime },
+                    'staffTime.endTime': { $gte: formattedIstTime }
+                });
+
+                const chat = await getchatmodel.findOne({ queryId: data.queryId });
+
+                if (staffDuty) {
+                    const { staffNameArray } = staffDuty;
+                    if (staffNameArray && staffNameArray.length > 0) {
+                        const randomIndex = Math.floor(Math.random() * staffNameArray.length);
+                        const selectedStaff = staffNameArray[randomIndex];
+                        if (!chat) {
+                            const chatId = bcrypt.hashSync(data.agentId + data.queryId, 10);
+                            const chats = await getchatmodel.create({ sender: data.agentId, chatId: chatId, queryId: data.queryId, receiver: selectedStaff.UserName });
+                            if (chats) {
+                                const createchatmodel = await chatmodel.findOne({ queryId: data.queryId });
+                                await updateParticipantList(selectedStaff.UserName, data.queryId, chatId);
+                                if (createchatmodel) {
+                                    createchatmodel.Messages.push({ sender: data.queryId, message: data.message });
+                                    await createchatmodel.save();
+                                }
+                                else {
+                                    const chatcreated = await chatmodel.create({ chatId: chatId, queryId: data.queryId, Messages: [{ sender: data.queryId, message: data.message }] });
+                                    const reciever = await activeagent.findOne({ queryId: queryId });
+                                    if (chatcreated) {
+                                        if (reciever) {
+                                            io.to(reciever.socketId).emit("get-chat-id", {
+                                                chatId: chatId,
+                                            });
+                                        }
+                                        console.log('Chat created successfully');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if (!chat) {
+                        const chatId = bcrypt.hashSync(data.agentId + data.queryId, 10);
+                        const chats = await getchatmodel.create({ sender: data.agentId, chatId: chatId, queryId: data.queryId, receiver: '' });
+                        if (chats) {
+                            const createchatmodel = await chatmodel.findOne({ queryId: data.queryId });
+                            if (createchatmodel) {
+                                createchatmodel.Messages.push({ sender: data.queryId, message: data.message });
+                                await createchatmodel.save();
+                            }
+                            else {
+                                const chatcreated = await chatmodel.create({ chatId: chatId, queryId: data.queryId, Messages: [{ sender: data.queryId, message: data.message }] });
+                                const reciver = await activeagent.findOne({ queryId: queryId });
+                                if (chatcreated) {
+                                    if (reciver) {
+                                        io.to(reciver.socketId).emit("get-chat-id", {
+                                            chatId: chatId,
+                                        });
+                                    }
+                                    console.log('Chat created successfully');
+                                }
+                            }
+                            users.forEach(async (user) => {
+                                const activeUser = await active.findOne({ userName: user.userName });
+
+                                if (activeUser) {
+                                    io.to(activeUser.socketId).emit('broadcast-msg', { agentId: data.agentId, queryId: data.queryId, message: data.message, chatId: chatId });
+                                }
+                            });
+                        }
+                    }
+                    else if (chat.receiver === '') {
+                        const createchatmodel = await chatmodel.findOne({ queryId: data.queryId });
+                        if (createchatmodel) {
+                            createchatmodel.Messages.push({ sender: data.queryId, message: data.message });
+                            await createchatmodel.save();
+                        }
+                        users.forEach(async (user) => {
+                            const activeUser = await active.findOne({ userName: user.userName });
+
+                            if (activeUser) {
+                                io.to(activeUser.socketId).emit('broadcast-msg', { agentId: data.agentId, queryId: data.queryId, message: data.message, chatId: chat.chatId });
+                            }
+                        });
+                    }
+                    else {
+                        const createchatmodel = await chatmodel.findOne({ queryId: data.queryId });
+                        if (createchatmodel) {
+                            createchatmodel.Messages.push({ sender: data.agentId, message: data.message });
+                            await createchatmodel.save();
+                        }
+                    }
+                }
+            } catch (error) {
             }
         });
 

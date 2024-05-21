@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -25,7 +25,6 @@
   <div class="container-fluid page-2" id="page-2">
     <div class="row" style="height: 100vh; overflow: hidden;">
 
-      <!-- left side chat list ui -->
       <div class="col-md-4 dark-mode-bg overflow-y-auto" style="background-color: aliceblue;">
         <div class="fixed-content ">
           <div class="sticky-container">
@@ -43,21 +42,16 @@
           </div>
         </div>
       </div>
-      
-      <!-- right side chat box container ui -->
+
       <div class="col-md-8 d-flex flex-column dark-mode-bg .chat-conversation">
 
-        <!-- top name of the element -->
         <div id="chatWidgetWrapper"></div>
 
-        <!-- chat conversation container -->
         <div class="chat-container">
           <div class="chat-conversation mt-3" id="chatConversation">
-            <!-- Chat bubbles will be dynamically added here -->
           </div>
         </div>
         
-        <!-- chat input box -->
         <div class="chat-input" id="chatInputWidget">
         </div>
 
@@ -75,6 +69,97 @@
     </div>
   </div>
 
+  <script src="/js/home.js"></script>
+</body>
+
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Culture Support</title>
+  <link rel="stylesheet" href="/styles/home.css">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"
+    integrity="sha512-luMnTJZ7oEchNDZAtQhgjomP1eZefnl82ruTH/3Oj/Yu5qYtwL7+dVRccACS/Snp1lFXq188XFipHKYE75IaQQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+
+<body>
+  <div id="container">
+    <div class="side">
+      <div class="menu">
+        <div class="menu-item home-section selected">
+          <i class="ri-chat-1-line"></i>
+        </div>
+        <div class="menu-item profile-section">
+          <i class="ri-user-line"></i>
+        </div>
+      </div>
+      <div class="logout">
+        <div class="menu-item">
+          <i class="ri-logout-box-line"></i>
+          <span class="tooltip">Logout</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <h1>Culture Support</h1>
+      <div class="search-bar">
+        <i id="fas" class="ri-search-line" style="color: #a1a1a1;"></i>
+        <input type="text" placeholder="Search messages or users">
+      </div>
+      <div class="recent">
+        <h4>Recent</h4>
+      </div>
+      <div id="chatContainer" style="overflow-y:scroll; height:80vh;">
+
+      </div>
+    </div>
+    <div class="chat-side">
+      <div class="top">
+        <div class="user-top">
+          <div class="user-image">
+            <h4>G</h4>
+          </div>
+          <div class="user-info">
+            <h4>John Doe</h4>
+          </div>
+        </div>
+      </div>
+      <div class="chat-section">
+        <div class="client">
+          <h3>Good Morning</h3>
+        </div>
+        <div class="support">
+          <h3>Good Morning</h3>
+        </div>
+        <div class="client">
+          <h3>Good Morning</h3>
+        </div>
+      </div>
+      <div class="input-filed">
+        <input type="text" placeholder="Enter a message....">
+        <i class="ri-attachment-line fa"></i>
+        <div class="icon-send">
+          <i class="ri-send-plane-2-fill" style="color: white;"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="notificationCard" class="notification-card">
+    <div class="notification-content">
+      <p id="notificationMessage" class="notification-message"></p>
+      <div class="notification-buttons">
+        <button id="acceptButton" class="btn btn-primary">Accept</button>
+        <button id="rejectButton" class="btn btn-secondary">Reject</button>
+      </div>
+    </div>
+  </div>
   <script src="/js/home.js"></script>
 </body>
 

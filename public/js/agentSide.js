@@ -26,71 +26,94 @@ Socket.on('get-receiver-id', (data) => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    const messageForm = document.getElementById('messageForm');
-    const messageInput = document.getElementById('messageInput');
-    const chatConversation = document.getElementById('chatConversation');
+    console.clear();
+    const text = document.querySelectorAll(".text");
+    const message = document.querySelector(".message");
+    const chatContainer = document.querySelector(".chat-texts");
+    const sendMessage = document.querySelector(".send-message-button");
 
-    // Event listener for form submission
-    messageForm.addEventListener('submit', (e) => {
-        e.preventDefault();
+    sendMessage.addEventListener("click", (e) => {
 
-        const message = messageInput.value.trim();
-        if (message !== '' && queryId !== null && agentId !== null) {
-            appendMessage('sender', message);
-            messageInput.value = '';
+        if (message.value && queryId !== null && agentId !== null) {
+
+            appendMessages('sender', message.value);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            if (chatId !== '' && receiver !== '') {
+                console.log(receiver);
+                console.log('Sending message');
+                Socket.emit('message-send', { receiver: receiver, queryId: queryId, message: message.value, sender: queryId });
+            }
+            else {
+                console.log(chatId, receiver);
+                if (queryId !== null && agentId !== null) {
+                    console.log('Broadcasting message');
+                    Socket.emit('auto-assign', { agentId: agentId, queryId: queryId, message: message.value, time: new Date().toLocaleString() });
+                }
+                else {
+                    // console.log('Error in broadcasting message');
+                }
+            }
+            message.value = "";
         }
+
     });
-
-    // Function to append message to the chat container
-    function appendMessage(sender, message) {
-        const chatBubble = document.createElement('div');
-        chatBubble.classList.add('chat-bubble', sender);
-
-        const senderInfo = document.createElement('div');
-        senderInfo.classList.add('sender-info');
-
-        const messageContainer = document.createElement('div');
-        messageContainer.classList.add('message');
-        messageContainer.innerHTML = `<p class="chats-${sender === 'sender' ? 's' : 'r'}">${message}</p>`;
-
-        senderInfo.appendChild(messageContainer);
-        chatBubble.appendChild(senderInfo);
-        chatConversation.appendChild(chatBubble);
-
-        // Scroll to bottom of chat container
-        chatConversation.scrollTop = chatConversation.scrollHeight;
-        if (chatId !== '' && receiver !== '') {
-            console.log(receiver);
-            console.log('Sending message');
-            Socket.emit('message-send', { receiver: receiver, queryId: queryId, message: message, sender: queryId });
+    function appendMessages(sender, message) {
+        if (sender === 'sender') {
+            let text = document.createElement("div");
+            let profilePicContainer = document.createElement("div");
+            let pic = document.createElement("img");
+            let textContent = document.createElement("div");
+            let timeStamp = document.createElement("span");
+            let name = document.createElement("h5");
+            let date = new Date();
+            let hours = date.getHours();
+            let minutes = date.getMinutes() + "";
+            let time = `${hours}:${minutes.padStart(2, "0")}hrs`;
+            name.innerText = agentId;
+            timeStamp.classList.add("timestamp");
+            timeStamp.innerText = time;
+            textContent.classList.add("text-content");
+            textContent.appendChild(name);
+            textContent.append(message);
+            textContent.appendChild(timeStamp);
+            pic.setAttribute("src", "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80");
+            text.classList.add("text");
+            text.classList.add("sent");
+            profilePicContainer.classList.add("profile-pic");
+            profilePicContainer.appendChild(pic);
+            text.appendChild(profilePicContainer);
+            text.appendChild(textContent);
+            chatContainer.appendChild(text);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
         else {
-            console.log(chatId, receiver);
-            if (queryId !== null && agentId !== null) {
-                console.log('Broadcasting message');
-                Socket.emit('brodcast', { agentId: agentId, queryId: queryId, message: message });
-            }
-            else{
-                // console.log('Error in broadcasting message');
-            }
+            let text = document.createElement("div");
+            let profilePicContainer = document.createElement("div");
+            let pic = document.createElement("img");
+            let textContent = document.createElement("div");
+            let timeStamp = document.createElement("span");
+            let name = document.createElement("h5");
+            let date = new Date();
+            let hours = date.getHours();
+            let minutes = date.getMinutes() + "";
+            let time = `${hours}:${minutes.padStart(2, "0")}hrs`;
+            name.innerText = 'Culture Support';
+            timeStamp.classList.add("timestamp");
+            timeStamp.innerText = time;
+            textContent.classList.add("text-content");
+            textContent.appendChild(name);
+            textContent.append(message);
+            textContent.appendChild(timeStamp);
+            pic.setAttribute("src", "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80");
+            text.classList.add("text");
+            profilePicContainer.classList.add("profile-pic");
+            profilePicContainer.appendChild(pic);
+            text.appendChild(profilePicContainer);
+            text.appendChild(textContent);
+            chatContainer.appendChild(text);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
-    }
-
-    function appendMessages(sender, message) {
-        const chatBubble = document.createElement('div');
-        chatBubble.classList.add('chat-bubble', sender);
-
-        const senderInfo = document.createElement('div');
-        senderInfo.classList.add('sender-info');
-
-        const messageContainer = document.createElement('div');
-        messageContainer.classList.add('message');
-        messageContainer.innerHTML = `<p class="chats-${sender === 'sender' ? 's' : 'r'}">${message}</p>`;
-
-        senderInfo.appendChild(messageContainer);
-        chatBubble.appendChild(senderInfo);
-        chatConversation.appendChild(chatBubble);
-        chatConversation.scrollTop = chatConversation.scrollHeight;
     }
 
     Socket.on('get-individual-chat', (data) => {
@@ -111,4 +134,3 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
-
