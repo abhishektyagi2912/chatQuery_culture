@@ -32,9 +32,12 @@ const chatContainer = document.querySelector(".chat-texts");
 const sendMessage = document.querySelector(".send-message-button");
 
 sendMessage.addEventListener("click", (e) => {
+    e.preventDefault();
+    assignSend();
+});
 
+function assignSend(){
     if (message.value && queryId !== null && agentId !== null) {
-
         appendMessages('sender', message.value);
         chatContainer.scrollTop = chatContainer.scrollHeight;
 
@@ -55,8 +58,7 @@ sendMessage.addEventListener("click", (e) => {
         }
         message.value = "";
     }
-
-});
+}
 
 function appendMessages(sender, message) {
     if (sender === 'sender') {
@@ -128,6 +130,7 @@ function handleOption(option) {
             break;
         case 'chat':
             message = 'Starting chat...';
+            assignSend();
             break;
         default:
             console.log('Unknown option selected');
