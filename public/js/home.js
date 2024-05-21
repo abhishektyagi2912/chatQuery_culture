@@ -91,13 +91,39 @@ Socket.on("broadcast-msg", (data) => {
 document.addEventListener("DOMContentLoaded", () => {
     // const username = document.getElementById("userName");
     // username.textContent = user;
+    const logout = document.getElementById("logout");
+    
 
     document.addEventListener("click", (e) => {
         if (e.target.classList.contains("user")) {
             chatId = e.target.getAttribute("data-id");
             reciver = e.target.getAttribute("data-receiver");
+            const chatHeader = document.getElementById("chatHeader");
+            const inputSection = document.getElementById("inputSection");
+            const chatContainer = document.getElementsByClassName("chat-section")[0];
+            chatContainer.innerHTML = "";
+            chatHeader.innerHTML = ``;
+
+            inputSection.innerHTML = `<div class="input-filed">
+            <input type="text" id="messageInput" placeholder="Enter a message....">
+            <i class="ri-attachment-line fa"></i>
+            <div class="icon-send" id="connectButton">
+              <i class="ri-send-plane-2-fill" style="color: white;"></i>
+            </div>
+          </div>`;
+            chatHeader.innerHTML = `<div class="top">
+            <div class="user-top">
+              <div class="user-image">
+                <h4>C</h4>
+              </div>
+              <div class="user-info">
+                <h4>${reciver}</h4>
+              </div>
+            </div>
+          </div>`;
             console.log("Chat ID:", chatId);
             console.log("Receiver:", reciver);
+
 
             //call the socket to fetch the individual chat
             Socket.emit("fetch-individual-chat", { chatId: chatId });
@@ -111,6 +137,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             });
 
+            const connectButton = document.getElementById("connectButton");
+            const messageInput = document.getElementById("messageInput");
             // Add event listener for clicking the send icon container
             connectButton.addEventListener("click", (e) => {
                 e.preventDefault();
@@ -137,7 +165,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function appendMessage(sender, message) {
         const chatContainer = document.getElementsByClassName("chat-section")[0];
-
         const messageElement = document.createElement("div");
 
         if (sender === user) {

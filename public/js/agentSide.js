@@ -26,7 +26,6 @@ Socket.on('get-receiver-id', (data) => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.clear();
     const text = document.querySelectorAll(".text");
     const message = document.querySelector(".message");
     const chatContainer = document.querySelector(".chat-texts");
