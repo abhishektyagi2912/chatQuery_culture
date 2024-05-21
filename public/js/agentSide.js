@@ -121,6 +121,7 @@ function handleOption(option) {
     switch (option) {
         case 'booking':
             message = 'Searching your booking Information...';
+            booking();
             break;
         case 'travelerName':
             message = 'Searching traveler name...';
@@ -136,6 +137,36 @@ function handleOption(option) {
     setTimeout(() => {
         appendMessages('receiver', message);
     }, 1000);
+}
+
+function booking() {
+    const url = 'https://mobileapi.cultureholidays.com/api/Holidays/GetPackageBooking?AgencyID=CHAGT0001000012263';
+    const requestData = {
+
+    }
+
+    fetch(url,{
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response:', data);
+        console.log(data[0].tourName);
+        appendMessages('receiver', `their are ${data.length} which is booking \n ${data[0].tourName}`);
+    })
+    .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+    });
+    
 }
 
 Socket.on('get-individual-chat', (data) => {
