@@ -90,6 +90,21 @@
 
 <body>
   <div id="container">
+    <div class="overlay" id="logoutOverlay">
+      <div class="confirmation">
+        <div class="cancelSign">
+          <i class="ri-close-line" id="closeOverlay"></i>
+        </div>
+        <h4>Complete this action?</h4>
+        <p>Confirm to logout</p>
+        <div>
+          <button class="confirm" id="confirmLogout">Confirm</button>
+        </div>
+        <div>
+          <button class="cancel" id="cancelLogout">Cancel</button>
+        </div>
+      </div>
+    </div>
     <div class="side">
       <div class="menu">
         <div class="menu-item home-section selected">
@@ -99,7 +114,7 @@
           <i class="ri-user-line"></i>
         </div>
       </div>
-      <div class="logout" id="logout">
+      <div class="logout" id="logoutButton">
         <div class="menu-item">
           <i class="ri-logout-box-line"></i>
           <span class="tooltip">Logout</span>

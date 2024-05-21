@@ -91,9 +91,7 @@ Socket.on("broadcast-msg", (data) => {
 document.addEventListener("DOMContentLoaded", () => {
     // const username = document.getElementById("userName");
     // username.textContent = user;
-    const logout = document.getElementById("logout");
     
-
     document.addEventListener("click", (e) => {
         if (e.target.classList.contains("user")) {
             chatId = e.target.getAttribute("data-id");
@@ -121,17 +119,15 @@ document.addEventListener("DOMContentLoaded", () => {
               </div>
             </div>
           </div>`;
-            console.log("Chat ID:", chatId);
-            console.log("Receiver:", reciver);
+            // console.log("Chat ID:", chatId);
+            // console.log("Receiver:", reciver);
 
 
             //call the socket to fetch the individual chat
             Socket.emit("fetch-individual-chat", { chatId: chatId });
 
             Socket.on("get-individual-chat", (data) => {
-                console.log(data);
                 const chat = data.chat;
-                console.log(chat);
                 chat.forEach((message) => {
                     appendMessage(message.sender, message.message);
                 });
@@ -181,6 +177,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
+
+    document.getElementById('logoutButton').addEventListener('click', function () {
+        document.getElementById('logoutOverlay').style.display = 'flex';
+    });
+
+    document.getElementById('cancelLogout').addEventListener('click', function () {
+        document.getElementById('logoutOverlay').style.display = 'none';
+    });
+
+    document.getElementById('closeOverlay').addEventListener('click', function () {
+        document.getElementById('logoutOverlay').style.display = 'none';
+    });
+
+    document.getElementById('confirmLogout').addEventListener('click', function () {
+        document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+
+        window.location.href = '/auth/login';
+    });
 
     Socket.on("receive-message", (data) => {
         console.log(data);
