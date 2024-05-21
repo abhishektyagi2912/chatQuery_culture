@@ -191,8 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById('confirmLogout').addEventListener('click', function () {
-        document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-
+        document.cookie = 'authToken=;expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         window.location.href = '/auth/login';
     });
 
