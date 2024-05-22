@@ -94,12 +94,16 @@ document.addEventListener("DOMContentLoaded", () => {
     
     document.addEventListener("click", (e) => {
         if (e.target.classList.contains("user")) {
+            document.querySelectorAll('.user').forEach(element => {
+                element.style.backgroundColor = "";
+            })
+            e.target.style.backgroundColor = "#E6EBF5";
             chatId = e.target.getAttribute("data-id");
             reciver = e.target.getAttribute("data-receiver");
             const chatHeader = document.getElementById("chatHeader");
             const inputSection = document.getElementById("inputSection");
             const chatContainer = document.getElementsByClassName("chat-section")[0];
-            chatContainer.innerHTML = "";
+            chatContainer.innerHTML = ``;
             chatHeader.innerHTML = ``;
 
             inputSection.innerHTML = `<div class="input-filed">
@@ -128,6 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             Socket.on("get-individual-chat", (data) => {
                 const chat = data.chat;
+                chatContainer.innerHTML = ``;
                 chat.forEach((message) => {
                     appendMessage(message.sender, message.message);
                 });
