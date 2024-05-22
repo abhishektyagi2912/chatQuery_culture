@@ -2,6 +2,7 @@ const agentId = sessionStorage.getItem('agentId');
 const queryId = sessionStorage.getItem('queryId');
 var chatId = '';
 var receiver = '';
+var isChat = false;
 
 const Socket = io('http://localhost:3000', {
     query: {
@@ -36,8 +37,8 @@ sendMessage.addEventListener("click", (e) => {
     assignSend();
 });
 
-function assignSend(){
-    if (message.value && queryId !== null && agentId !== null) {
+function assignSend() {
+    if (message.value && queryId !== null && agentId !== null && isChat === true) {
         appendMessages('sender', message.value);
         chatContainer.scrollTop = chatContainer.scrollHeight;
 
@@ -49,7 +50,7 @@ function assignSend(){
         else {
             console.log(chatId, receiver);
             if (queryId !== null && agentId !== null) {
-                console.log('Broadcasting message');
+                console.log('auto-assign message');
                 Socket.emit('auto-assign', { agentId: agentId, queryId: queryId, message: message.value, time: new Date().toLocaleString() });
             }
             else {
@@ -57,6 +58,8 @@ function assignSend(){
             }
         }
         message.value = "";
+    } else{
+        appendMessages('reciver', 'Please select chat option');
     }
 }
 
@@ -130,7 +133,7 @@ function handleOption(option) {
             break;
         case 'chat':
             message = 'Starting chat...';
-            assignSend();
+            isChat = true;
             break;
         default:
             console.log('Unknown option selected');
@@ -148,28 +151,28 @@ function booking() {
 
     }
 
-    fetch(url,{
+    fetch(url, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json' 
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify(requestData)
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok ' + response.statusText);
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Response:', data);
-        console.log(data[0].tourName);
-        appendMessages('receiver', `their are ${data.length} which is booking \n ${data[0].tourName}`);
-    })
-    .catch(error => {
-        console.error('There was a problem with the fetch operation:', error);
-    });
-    
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response:', data);
+            console.log(data[0].tourName);
+            appendMessages('receiver', `their are ${data.length} which is booking \n ${data[0].tourName}`);
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
+
 }
 
 Socket.on('get-individual-chat', (data) => {

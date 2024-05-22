@@ -172,59 +172,65 @@ const socket = async (io) => {
                         }
                     }
                 } else {
-                    if (!chat) {
-                        const chatId = bcrypt.hashSync(data.agentId + data.queryId, 10);
-                        const chats = await getchatmodel.create({ sender: data.agentId, chatId: chatId, queryId: data.queryId, receiver: '' });
-                        if (chats) {
+                    const users = await active.find();
+                    try {
+                        if (!chat) {
+                            const chatId = bcrypt.hashSync(data.agentId + data.queryId, 10);
+                            const chats = await getchatmodel.create({ sender: data.agentId, chatId: chatId, queryId: data.queryId, receiver: '' });
+                            if (chats) {
+                                const createchatmodel = await chatmodel.findOne({ queryId: data.queryId });
+                                if (createchatmodel) {
+                                    createchatmodel.Messages.push({ sender: data.queryId, message: data.message });
+                                    await createchatmodel.save();
+                                }
+                                else {
+                                    const chatcreated = await chatmodel.create({ chatId: chatId, queryId: data.queryId, Messages: [{ sender: data.queryId, message: data.message }] });
+                                    const reciver = await activeagent.findOne({ queryId: queryId });
+                                    if (chatcreated) {
+                                        if (reciver) {
+                                            io.to(reciver.socketId).emit("get-chat-id", {
+                                                chatId: chatId,
+                                            });
+                                        }
+                                        console.log('Chat created successfully');
+                                    }
+                                }
+                                users.forEach(async (user) => {
+                                    const activeUser = await active.findOne({ userName: user.userName });
+    
+                                    if (activeUser) {
+                                        io.to(activeUser.socketId).emit('broadcast-msg', { agentId: data.agentId, queryId: data.queryId, message: data.message, chatId: chatId });
+                                    }
+                                });
+                            }
+                        }
+                        else if (chat.receiver === '') {
                             const createchatmodel = await chatmodel.findOne({ queryId: data.queryId });
                             if (createchatmodel) {
                                 createchatmodel.Messages.push({ sender: data.queryId, message: data.message });
                                 await createchatmodel.save();
                             }
-                            else {
-                                const chatcreated = await chatmodel.create({ chatId: chatId, queryId: data.queryId, Messages: [{ sender: data.queryId, message: data.message }] });
-                                const reciver = await activeagent.findOne({ queryId: queryId });
-                                if (chatcreated) {
-                                    if (reciver) {
-                                        io.to(reciver.socketId).emit("get-chat-id", {
-                                            chatId: chatId,
-                                        });
-                                    }
-                                    console.log('Chat created successfully');
-                                }
-                            }
                             users.forEach(async (user) => {
                                 const activeUser = await active.findOne({ userName: user.userName });
-
+    
                                 if (activeUser) {
-                                    io.to(activeUser.socketId).emit('broadcast-msg', { agentId: data.agentId, queryId: data.queryId, message: data.message, chatId: chatId });
+                                    io.to(activeUser.socketId).emit('broadcast-msg', { agentId: data.agentId, queryId: data.queryId, message: data.message, chatId: chat.chatId });
                                 }
                             });
                         }
-                    }
-                    else if (chat.receiver === '') {
-                        const createchatmodel = await chatmodel.findOne({ queryId: data.queryId });
-                        if (createchatmodel) {
-                            createchatmodel.Messages.push({ sender: data.queryId, message: data.message });
-                            await createchatmodel.save();
-                        }
-                        users.forEach(async (user) => {
-                            const activeUser = await active.findOne({ userName: user.userName });
-
-                            if (activeUser) {
-                                io.to(activeUser.socketId).emit('broadcast-msg', { agentId: data.agentId, queryId: data.queryId, message: data.message, chatId: chat.chatId });
+                        else {
+                            const createchatmodel = await chatmodel.findOne({ queryId: data.queryId });
+                            if (createchatmodel) {
+                                createchatmodel.Messages.push({ sender: data.agentId, message: data.message });
+                                await createchatmodel.save();
                             }
-                        });
-                    }
-                    else {
-                        const createchatmodel = await chatmodel.findOne({ queryId: data.queryId });
-                        if (createchatmodel) {
-                            createchatmodel.Messages.push({ sender: data.agentId, message: data.message });
-                            await createchatmodel.save();
                         }
+                    } catch (error) {
+                        console.log("Error in brodcast in auto-assign method:", error);
                     }
                 }
             } catch (error) {
+                console.log("Error in auto-assign:", error);
             }
         });
 
