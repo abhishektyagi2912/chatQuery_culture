@@ -62,55 +62,7 @@ function assignSend() {
         appendMessages('reciver', 'Please select chat option');
     }
 }
-function appendOptionMessages(sender, message) {
-    let text2 = document.createElement("div");
-    let profilePicContainer2 = document.createElement("div");
-    let pic2 = document.createElement("img");
-    let textContents2 = document.createElement("div");
-    let name2 = document.createElement("h5");
-    let message2 = document.createElement("p");
-    let options = document.createElement("div");
-    let button1 = document.createElement("button");
-    let button2 = document.createElement("button");
-    let button3 = document.createElement("button");
 
-    name2.innerText = 'Culture support';
-    message2.innerText = 'Hey, how can I help you?';
-    button1.innerText = 'See Existing Booking';
-    button2.innerText = 'See New Booking';
-    button3.innerText = 'Chat with Us';
-
-    button1.classList.add("option-button");
-    button2.classList.add("option-button");
-    button3.classList.add("option-button");
-
-    button1.setAttribute("onclick", "handleOption('existingBooking')");
-    button2.setAttribute("onclick", "handleOption('newBooking')");
-    button3.setAttribute("onclick", "handleOption('chat')");
-
-    options.classList.add("options");
-    options.appendChild(button1);
-    options.appendChild(button2);
-    options.appendChild(button3);
-
-    pic2.setAttribute("src", "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80");
-    pic2.setAttribute("alt", "");
-
-    text2.classList.add("text");
-    profilePicContainer2.classList.add("profile-pic");
-    textContents2.classList.add("text-contents");
-
-    profilePicContainer2.appendChild(pic2);
-    textContents2.appendChild(name2);
-    textContents2.appendChild(message2);
-    textContents2.appendChild(options);
-
-    text2.appendChild(profilePicContainer2);
-    text2.appendChild(textContents2);
-
-    chatContainer.appendChild(text2);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
 function appendMessages(sender, message) {
     if (sender === 'sender') {
         let text = document.createElement("div");
@@ -169,6 +121,56 @@ function appendMessages(sender, message) {
     }
 }
 
+function appendOptionMessage() {
+    let text = document.createElement("div");
+    let profilePicContainer = document.createElement("div");
+    let pic = document.createElement("img");
+    let textContent = document.createElement("div");
+    let name = document.createElement("h5");
+    let message = document.createElement("p");
+    let options = document.createElement("div");
+    let existingBookingButton = document.createElement("button");
+    let newBookingButton = document.createElement("button");
+    let chatButton = document.createElement("button");
+
+    name.innerText = "Culture support";
+    message.innerText = "Hey, how can I help you?";
+    existingBookingButton.innerText = "See Existing Booking";
+    newBookingButton.innerText = "See New Booking";
+    chatButton.innerText = "Chat with Us";
+
+    existingBookingButton.classList.add("option-button");
+    newBookingButton.classList.add("option-button");
+    chatButton.classList.add("option-button");
+
+    existingBookingButton.setAttribute("onclick", "handleOption('travelName')");
+    newBookingButton.setAttribute("onclick", "handleOption('getTravelerList')");
+    chatButton.setAttribute("onclick", "handleOption('chat')");
+
+    options.classList.add("options");
+    options.appendChild(existingBookingButton);
+    options.appendChild(newBookingButton);
+    options.appendChild(chatButton);
+
+    textContent.classList.add("text-contents");
+    textContent.appendChild(name);
+    textContent.appendChild(message);
+    textContent.appendChild(options);
+
+    pic.setAttribute("src", "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80");
+    pic.setAttribute("alt", "");
+
+    profilePicContainer.classList.add("profile-pic");
+    profilePicContainer.appendChild(pic);
+
+    text.classList.add("text");
+
+    text.appendChild(profilePicContainer);
+    text.appendChild(textContent);
+    chatContainer.appendChild(text);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
 function handleOption(option) {
     let message;
     switch (option) {
@@ -191,7 +193,7 @@ function handleOption(option) {
     appendMessages('sender', option);
     setTimeout(() => {
         appendMessages('receiver', message);
-    }, 1000);
+    }, 500);
 }
 
 function booking() {
@@ -217,7 +219,10 @@ function booking() {
         .then(data => {
             console.log('Response:', data);
             console.log(data[0].tourName);
-            appendMessages('receiver', `their are ${data.length} which is booking \n ${data[0].tourName}`);
+            setTimeout(() => {
+                appendMessages('receiver', `their are ${data.length} which is booking \n ${data[0].tourName}`);
+                appendOptionMessage();
+            }, 1000);
         })
         .catch(error => {
             appendMessages('receiver', `Some issue occurs in fetching the booking information.}`);
