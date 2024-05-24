@@ -112,6 +112,12 @@ const getChatId = async (io, data) => {
 
 const allUserChats = async (io, username, data) => {
     console.log(data.token);
+    if (!data.token) {
+        io.emit("handle-invalid-token", {
+            message: "Token is required.",
+        });
+        return;
+    }
     const fetchToken = jwt.verify(data.token, SECRET_KEY);
     // var username = fetchToken.userName;
     if (fetchToken.id !== username) {

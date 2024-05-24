@@ -48,6 +48,9 @@ Socket.on("disconnect", () => {
 
 Socket.on("handle-invalid-token", (data) => {
     console.log("Error:", data.message);
+    document.cookie = 'authToken=;expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    localStorage.clear();
+    window.location.href = '/auth/login';
 });
 
 Socket.on("connectionCreated", (data) => {
@@ -91,7 +94,7 @@ Socket.on("broadcast-msg", (data) => {
 document.addEventListener("DOMContentLoaded", () => {
     // const username = document.getElementById("userName");
     // username.textContent = user;
-    
+
     document.addEventListener("click", (e) => {
         if (e.target.classList.contains("user")) {
             document.querySelectorAll('.user').forEach(element => {
@@ -197,6 +200,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById('confirmLogout').addEventListener('click', function () {
         document.cookie = 'authToken=;expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        localStorage.clear();
+        sessionStorage.clear();
         window.location.href = '/auth/login';
     });
 

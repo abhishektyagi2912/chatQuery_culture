@@ -58,11 +58,59 @@ function assignSend() {
             }
         }
         message.value = "";
-    } else{
+    } else {
         appendMessages('reciver', 'Please select chat option');
     }
 }
+function appendOptionMessages(sender, message) {
+    let text2 = document.createElement("div");
+    let profilePicContainer2 = document.createElement("div");
+    let pic2 = document.createElement("img");
+    let textContents2 = document.createElement("div");
+    let name2 = document.createElement("h5");
+    let message2 = document.createElement("p");
+    let options = document.createElement("div");
+    let button1 = document.createElement("button");
+    let button2 = document.createElement("button");
+    let button3 = document.createElement("button");
 
+    name2.innerText = 'Culture support';
+    message2.innerText = 'Hey, how can I help you?';
+    button1.innerText = 'See Existing Booking';
+    button2.innerText = 'See New Booking';
+    button3.innerText = 'Chat with Us';
+
+    button1.classList.add("option-button");
+    button2.classList.add("option-button");
+    button3.classList.add("option-button");
+
+    button1.setAttribute("onclick", "handleOption('existingBooking')");
+    button2.setAttribute("onclick", "handleOption('newBooking')");
+    button3.setAttribute("onclick", "handleOption('chat')");
+
+    options.classList.add("options");
+    options.appendChild(button1);
+    options.appendChild(button2);
+    options.appendChild(button3);
+
+    pic2.setAttribute("src", "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80");
+    pic2.setAttribute("alt", "");
+
+    text2.classList.add("text");
+    profilePicContainer2.classList.add("profile-pic");
+    textContents2.classList.add("text-contents");
+
+    profilePicContainer2.appendChild(pic2);
+    textContents2.appendChild(name2);
+    textContents2.appendChild(message2);
+    textContents2.appendChild(options);
+
+    text2.appendChild(profilePicContainer2);
+    text2.appendChild(textContents2);
+
+    chatContainer.appendChild(text2);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
 function appendMessages(sender, message) {
     if (sender === 'sender') {
         let text = document.createElement("div");
@@ -124,15 +172,16 @@ function appendMessages(sender, message) {
 function handleOption(option) {
     let message;
     switch (option) {
-        case 'booking':
+        case 'existingBooking':
             message = 'Searching your booking Information...';
             booking();
             break;
-        case 'travelerName':
-            message = 'Searching traveler name...';
+        case 'newBooking':
+            message = 'Searching package name...';
+            createBooking();
             break;
         case 'chat':
-            message = 'Starting chat...';
+            message = 'You can chat now directly to our support...';
             isChat = true;
             break;
         default:
@@ -160,6 +209,7 @@ function booking() {
     })
         .then(response => {
             if (!response.ok) {
+                appendMessages('receiver', `Ssomething went wrong while fetching the booking information.`);
                 throw new Error('Network response was not ok ' + response.statusText);
             }
             return response.json();
@@ -170,9 +220,14 @@ function booking() {
             appendMessages('receiver', `their are ${data.length} which is booking \n ${data[0].tourName}`);
         })
         .catch(error => {
+            appendMessages('receiver', `Some issue occurs in fetching the booking information.}`);
             console.error('There was a problem with the fetch operation:', error);
         });
 
+}
+
+createBooking = () => {
+    appendMessages('receiver', 'Choose the package  booking...');
 }
 
 Socket.on('get-individual-chat', (data) => {
