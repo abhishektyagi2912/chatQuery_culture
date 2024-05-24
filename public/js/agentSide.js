@@ -125,6 +125,25 @@ function appendMessages(sender, message) {
     }
 }
 
+function fetchApi (url) {
+    console.log('Fetching data from:', url);
+    // fetch(url)
+    //     .then(response => {
+    //         if (!response.ok) {
+    //             throw new Error('Network response was not ok ' + response.statusText);
+    //         }
+    //         return response.json();
+    //     })
+    //     .then(data => {
+    //         console.log('Response:', data);
+    //         appendMessages('receiver', `Data fetched successfully`);
+    //     })
+    //     .catch(error => {
+    //         appendMessages('receiver', `Some issue occurs in fetching the data.}`);
+    //         console.error('There was a problem with the fetch operation:', error);
+    //     });
+}
+
 function appendOptionMessage(messages, optionsKeyValue) {
     let text = document.createElement("div");
     let profilePicContainer = document.createElement("div");
@@ -142,7 +161,7 @@ function appendOptionMessage(messages, optionsKeyValue) {
         let button = document.createElement("button");
         button.innerText = buttonText;
         button.classList.add("option-button");
-        button.setAttribute("onclick", `handleOption('${handlerValue}')`);
+        button.setAttribute("onclick", `fetchApi(${handlerValue})`);
         options.appendChild(button);
     }
 
@@ -218,16 +237,21 @@ function booking() {
             setTimeout(() => {
                 const message = "Choose the option to proceed:";
                 const options = {
-                    "See Existing Booking": "travelName",
-                    "See New Booking": "getTravelerList",
+                    "See Traveler List": "travelList",
+                    "PayNow": "paynow",
                     "Chat with Us": "chat"
                 };
+                data.forEach(item => {
+                    options[`Tour: ${item.tourName}, Date: ${item.tourdate}`] = [`${item.tourdate}`];
+                });
+            
+                
                 appendMessages('receiver', `their are ${data.length} which is booking \n ${data[0].tourName}`);
                 appendOptionMessage(message, options);
             }, 1000);
         })
         .catch(error => {
-            appendMessages('receiver', `Some issue occurs in fetching the booking information.}`);
+            appendMessages('receiver', `Some issue occurs in fetching the booking information.`);
             console.error('There was a problem with the fetch operation:', error);
         });
 
