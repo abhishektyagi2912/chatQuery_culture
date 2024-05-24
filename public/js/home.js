@@ -10,6 +10,10 @@ const Socket = io("http://localhost:3000", {
     },
 });
 
+document.addEventListener('contextmenu', event => {
+    event.preventDefault();
+});
+
 Socket.on("connect", () => {
     console.log("Connected to server");
     // You can send messages or emit events here

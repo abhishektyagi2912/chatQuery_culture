@@ -38,4 +38,8 @@ loginButton.addEventListener("click", async (e) => {
   } catch (error) {
     console.error('An error occurred:', error);
   }
-})
+});
+
+document.addEventListener('contextmenu', event => {
+  event.preventDefault();
+});

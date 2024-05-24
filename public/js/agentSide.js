@@ -4,6 +4,10 @@ var chatId = '';
 var receiver = '';
 var isChat = false;
 
+// document.addEventListener('contextmenu', event => {
+//     event.preventDefault();
+// });
+
 const Socket = io('http://localhost:3000', {
     query: {
         username: agentId,
@@ -121,7 +125,7 @@ function appendMessages(sender, message) {
     }
 }
 
-function appendOptionMessage() {
+function appendOptionMessage(messages, optionsKeyValue) {
     let text = document.createElement("div");
     let profilePicContainer = document.createElement("div");
     let pic = document.createElement("img");
@@ -129,28 +133,20 @@ function appendOptionMessage() {
     let name = document.createElement("h5");
     let message = document.createElement("p");
     let options = document.createElement("div");
-    let existingBookingButton = document.createElement("button");
-    let newBookingButton = document.createElement("button");
-    let chatButton = document.createElement("button");
 
     name.innerText = "Culture support";
-    message.innerText = "Hey, how can I help you?";
-    existingBookingButton.innerText = "See Existing Booking";
-    newBookingButton.innerText = "See New Booking";
-    chatButton.innerText = "Chat with Us";
 
-    existingBookingButton.classList.add("option-button");
-    newBookingButton.classList.add("option-button");
-    chatButton.classList.add("option-button");
+    message.innerText = messages;
 
-    existingBookingButton.setAttribute("onclick", "handleOption('travelName')");
-    newBookingButton.setAttribute("onclick", "handleOption('getTravelerList')");
-    chatButton.setAttribute("onclick", "handleOption('chat')");
+    for (let [buttonText, handlerValue] of Object.entries(optionsKeyValue)) {
+        let button = document.createElement("button");
+        button.innerText = buttonText;
+        button.classList.add("option-button");
+        button.setAttribute("onclick", `handleOption('${handlerValue}')`);
+        options.appendChild(button);
+    }
 
     options.classList.add("options");
-    options.appendChild(existingBookingButton);
-    options.appendChild(newBookingButton);
-    options.appendChild(chatButton);
 
     textContent.classList.add("text-contents");
     textContent.appendChild(name);
@@ -220,8 +216,14 @@ function booking() {
             console.log('Response:', data);
             console.log(data[0].tourName);
             setTimeout(() => {
+                const message = "Choose the option to proceed:";
+                const options = {
+                    "See Existing Booking": "travelName",
+                    "See New Booking": "getTravelerList",
+                    "Chat with Us": "chat"
+                };
                 appendMessages('receiver', `their are ${data.length} which is booking \n ${data[0].tourName}`);
-                appendOptionMessage();
+                appendOptionMessage(message, options);
             }, 1000);
         })
         .catch(error => {
