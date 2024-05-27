@@ -125,8 +125,9 @@ function appendMessages(sender, message) {
     }
 }
 
-function fetchApi (url) {
-    console.log('Fetching data from:', url);
+function fetchApi(handlerValueStr) {
+    const handlerValue = JSON.parse(handlerValueStr);
+    console.log('Fetching data from:', handlerValue);
     // fetch(url)
     //     .then(response => {
     //         if (!response.ok) {
@@ -161,7 +162,7 @@ function appendOptionMessage(messages, optionsKeyValue) {
         let button = document.createElement("button");
         button.innerText = buttonText;
         button.classList.add("option-button");
-        button.setAttribute("onclick", `fetchApi(${handlerValue})`);
+        button.setAttribute("onclick", `fetchApi('${JSON.stringify(handlerValue)}')`);
         options.appendChild(button);
     }
 
@@ -226,7 +227,7 @@ function booking() {
     })
         .then(response => {
             if (!response.ok) {
-                appendMessages('receiver', `Ssomething went wrong while fetching the booking information.`);
+                appendMessages('receiver', `Something went wrong while fetching the booking information.`);
                 throw new Error('Network response was not ok ' + response.statusText);
             }
             return response.json();
@@ -242,19 +243,22 @@ function booking() {
                     "Chat with Us": "chat"
                 };
                 data.forEach(item => {
-                    options[`Tour: ${item.tourName}, Date: ${item.tourdate}`] = [`${item.tourdate}`];
+                    options[`Tour: ${item.tourName}, Date: ${item.tourdate}`] = {
+                        tourdate: item.tourdate,
+                        year: item.endtdyear,
+                        pkgID: item.packgID
+                    };
                 });
-            
-                
+
+
                 appendMessages('receiver', `their are ${data.length} which is booking \n ${data[0].tourName}`);
                 appendOptionMessage(message, options);
             }, 1000);
         })
         .catch(error => {
             appendMessages('receiver', `Some issue occurs in fetching the booking information.`);
-            console.error('There was a problem with the fetch operation:', error);
+            // console.error('There was a problem with the fetch operation:', error);
         });
-
 }
 
 createBooking = () => {
