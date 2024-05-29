@@ -23,27 +23,31 @@ Socket.emit("fetch-chat", { token });
 
 Socket.on("get-chat", (data) => {
     const chat = data.participant;
-    console.log(chat);
     const chatContainer = document.getElementById("chatContainer");
     chatContainer.innerHTML = "";
     chat.forEach((chat) => {
-        const date = new Date(data.participant[0].createdAt);
+        const date = new Date(chat.createdAt);
         var firstchar = chat.receiver.charAt(0);
         const currentTime = date.toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
         });
-        chatContainer.innerHTML += `
-        <div class="user" data-id="${chat.chatId}" data-receiver="${chat.receiver}">
-          <div class="user-image">
-            <h4>${firstchar}</h4>
-          </div>
-          <div class="user-info">
-            <h4>${chat.receiver}</h4>
-            <p>Hi! How can I help you today?</p>
-          </div>
-        </div>
+        const userDiv = document.createElement("div");
+        userDiv.className = "user";
+        userDiv.dataset.id = chat.chatId;
+        userDiv.dataset.receiver = chat.receiver;
+
+        userDiv.innerHTML = `
+            <div class="user-image">
+                <h4>${firstchar}</h4>
+            </div>
+            <div class="user-info">
+                <h4>${chat.receiver}</h4>
+                <p>Hi! How can I help you today?</p>
+            </div>
         `;
+        chatContainer.appendChild(userDiv);
+
     });
 });
 
