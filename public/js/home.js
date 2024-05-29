@@ -10,9 +10,9 @@ const Socket = io("http://localhost:3000", {
     },
 });
 
-document.addEventListener('contextmenu', event => {
-    event.preventDefault();
-});
+// document.addEventListener('contextmenu', event => {
+//     event.preventDefault();
+// });
 
 Socket.on("connect", () => {
     console.log("Connected to server");
@@ -23,6 +23,7 @@ Socket.emit("fetch-chat", { token });
 
 Socket.on("get-chat", (data) => {
     const chat = data.participant;
+    console.log(chat);
     const chatContainer = document.getElementById("chatContainer");
     chatContainer.innerHTML = "";
     chat.forEach((chat) => {

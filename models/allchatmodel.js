@@ -24,7 +24,6 @@ const allChat = new mongoose.Schema({
     },
     time: {
         type: String,
-        required: true
     }
 });
 

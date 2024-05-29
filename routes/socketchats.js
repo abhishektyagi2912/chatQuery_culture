@@ -165,6 +165,7 @@ const socket = async (io) => {
                                                 chatId: chatId,
                                             });
                                         }
+                                        alertMessage(selectedStaff.UserName);
                                         console.log('Chat created successfully');
                                     }
                                 }
@@ -197,7 +198,7 @@ const socket = async (io) => {
                                 }
                                 users.forEach(async (user) => {
                                     const activeUser = await active.findOne({ userName: user.userName });
-    
+
                                     if (activeUser) {
                                         io.to(activeUser.socketId).emit('broadcast-msg', { agentId: data.agentId, queryId: data.queryId, message: data.message, chatId: chatId });
                                     }
@@ -212,7 +213,7 @@ const socket = async (io) => {
                             }
                             users.forEach(async (user) => {
                                 const activeUser = await active.findOne({ userName: user.userName });
-    
+
                                 if (activeUser) {
                                     io.to(activeUser.socketId).emit('broadcast-msg', { agentId: data.agentId, queryId: data.queryId, message: data.message, chatId: chat.chatId });
                                 }
@@ -294,6 +295,23 @@ const socket = async (io) => {
             }
             console.log('A user is disconnected');
         });
+
+        async function alertMessage(userName) {
+            console.log('Alerting agent:', userName);
+            const sender = await active.findOne({ userName: userName });
+            const chat = await allchatmodel.findOne({ UserName: userName });
+            if (!chat) {
+                io.to(sender.socketId).emit("get-chat", {
+                    username: username,
+                    participant: [],
+                });
+            } else {
+                io.to(sender.socketId).emit("get-chat", {
+                    username: username,
+                    participant: chat.participant,
+                });
+            }
+        }
     });
 };
 module.exports = socket;

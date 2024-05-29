@@ -126,26 +126,56 @@ function appendMessages(sender, message) {
 }
 
 function fetchApi(handlerValueStr) {
+    console.log('Handler Value:', handlerValueStr);
+    console.log('Handler Value:', JSON.stringify(handlerValueStr));
     const handlerValue = JSON.parse(handlerValueStr);
-    console.log('Fetching data from:', handlerValue);
-    // fetch(url)
-    //     .then(response => {
-    //         if (!response.ok) {
-    //             throw new Error('Network response was not ok ' + response.statusText);
-    //         }
-    //         return response.json();
-    //     })
-    //     .then(data => {
-    //         console.log('Response:', data);
-    //         appendMessages('receiver', `Data fetched successfully`);
-    //     })
-    //     .catch(error => {
-    //         appendMessages('receiver', `Some issue occurs in fetching the data.}`);
-    //         console.error('There was a problem with the fetch operation:', error);
-    //     });
+
+    const url = `https://apidev.cultureholidays.com/api/Holidays/BookingDetails`;
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(handlerValue)
+    })
+    .then(response => {
+        if (!response.ok) {
+            appendMessages('receiver', `Something went wrong while fetching the package details.`);
+            throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Package Details:', data);
+        const message = `Options for Tour: ${data.passenger[0].packageName}`;
+        const options = {
+            "PayNow": "paynow",
+            "Add Add-ons": "addAddons",
+            "Chat with Us": "chat"
+        };
+        appendOptionMessage(message, options, []);
+    })
+    .catch(error => {
+        appendMessages('receiver', `Some issue occurs in fetching the package details.`);
+    });
 }
 
-function appendOptionMessage(messages, optionsKeyValue) {
+function showAllBookings(allDataStr) {
+    const allData = JSON.parse(allDataStr);
+    const message = "Choose the option to proceed:";
+    const options = {};
+    allData.forEach(item => {
+        options[`Tour: ${item.tourName}, Date: ${item.tourdate}`] = {
+            tourdate: item.tourdate,
+            year: item.endtdyear,
+            pkgID: item.packgID
+        };
+    });
+    appendOptionMessage(message, options, allData);
+}
+
+function appendOptionMessage(messages, optionsKeyValue,allData) {
     let text = document.createElement("div");
     let profilePicContainer = document.createElement("div");
     let pic = document.createElement("img");
@@ -162,7 +192,11 @@ function appendOptionMessage(messages, optionsKeyValue) {
         let button = document.createElement("button");
         button.innerText = buttonText;
         button.classList.add("option-button");
-        button.setAttribute("onclick", `fetchApi('${JSON.stringify(handlerValue)}')`);
+        if (handlerValue === "showAll") {
+            button.setAttribute("onclick", `showAllBookings('${JSON.stringify(allData)}')`);
+        } else {
+            button.setAttribute("onclick", `fetchApi('${JSON.stringify(handlerValue)}')`);
+        }
         options.appendChild(button);
     }
 
@@ -213,9 +247,8 @@ function handleOption(option) {
 }
 
 function booking() {
-    const url = 'https://mobileapi.cultureholidays.com/api/Holidays/GetPackageBooking?AgencyID=CHAGT0001000012263';
+    const url = `https://apidev.cultureholidays.com/api/Holidays/GetPackageBooking?AgencyID=${agentId}`;
     const requestData = {
-
     }
 
     fetch(url, {
@@ -238,21 +271,22 @@ function booking() {
             setTimeout(() => {
                 const message = "Choose the option to proceed:";
                 const options = {
-                    "See Traveler List": "travelList",
-                    "PayNow": "paynow",
                     "Chat with Us": "chat"
                 };
-                data.forEach(item => {
+                const bookings = data.slice(0, 5);
+                bookings.forEach(item => {
                     options[`Tour: ${item.tourName}, Date: ${item.tourdate}`] = {
-                        tourdate: item.tourdate,
-                        year: item.endtdyear,
+                        tourDate: item.tourdate,
+                        agentID: agentId,
                         pkgID: item.packgID
                     };
                 });
 
-
+                if (data.length > 5) {
+                    options["Show All Bookings"] = "showAll";
+                }
                 appendMessages('receiver', `their are ${data.length} which is booking \n ${data[0].tourName}`);
-                appendOptionMessage(message, options);
+                appendOptionMessage(message, options,data);
             }, 1000);
         })
         .catch(error => {
