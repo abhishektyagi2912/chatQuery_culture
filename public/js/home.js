@@ -134,12 +134,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 <h4>${reciver}</h4>
               </div>
             </div>
-          </div>`;
-            // console.log("Chat ID:", chatId);
-            // console.log("Receiver:", reciver);
+          </div>`; 
 
-
-            //call the socket to fetch the individual chat
             Socket.emit("fetch-individual-chat", { chatId: chatId });
 
             Socket.on("get-individual-chat", (data) => {
@@ -149,7 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     appendMessage(message.sender, message.message);
                 });
             });
-            
+
             const connectButton = document.getElementById("connectButton");
             const messageInput = document.getElementById("messageInput");
 
@@ -172,12 +168,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     messageInput.value = "";
                 }
             };
-            
+
             connectButton.addEventListener("click", (e) => {
                 e.preventDefault();
                 sendMessage();
             });
-            
+
             messageInput.addEventListener("keypress", (e) => {
                 if (e.key === "Enter") {
                     e.preventDefault();
@@ -231,7 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log(reciver);
         let sender = data.Sender;
         let content = data.Content;
-        if(sender != reciver || reciver == '') {
+        if (sender != reciver || reciver == "") {
             defaultSound.play();
         }
         else if (sender == reciver) {
