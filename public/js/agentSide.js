@@ -4,9 +4,9 @@ var chatId = '';
 var receiver = '';
 var isChat = sessionStorage.getItem('chat') === 'true' ? true : false;
 
-document.addEventListener('contextmenu', event => {
-    event.preventDefault();
-});
+// document.addEventListener('contextmenu', event => {
+//     event.preventDefault();
+// });
 
 const Socket = io('http://localhost:3000', {
     query: {
@@ -39,6 +39,13 @@ const sendMessage = document.querySelector(".send-message-button");
 sendMessage.addEventListener("click", (e) => {
     e.preventDefault();
     assignSend();
+});
+
+message.addEventListener("keypress", (e) => {
+    if(e.key === "Enter"){
+        e.preventDefault();
+        assignSend();
+    }
 });
 
 function assignSend() {

@@ -13,9 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
         },
     });
 
-    document.addEventListener('contextmenu', event => {
-        event.preventDefault();
-    });
+    // document.addEventListener('contextmenu', event => {
+    //     event.preventDefault();
+    // });
 
     Socket.on("connect", () => {
         console.log("Connected to server");
@@ -149,14 +149,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     appendMessage(message.sender, message.message);
                 });
             });
-
+            
             const connectButton = document.getElementById("connectButton");
             const messageInput = document.getElementById("messageInput");
-            // Add event listener for clicking the send icon container
-            connectButton.addEventListener("click", (e) => {
-                e.preventDefault();
+
+            const sendMessage = () => {
                 const message = messageInput.value.trim();
-                console.log("Message:", message);
+                // console.log("Message:", message);
                 if (message !== "") {
                     const newMessage = {
                         chatId: chatId,
@@ -171,6 +170,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     Socket.emit("message-staff-send", newMessage);
                     appendMessage(user, message);
                     messageInput.value = "";
+                }
+            };
+            
+            connectButton.addEventListener("click", (e) => {
+                e.preventDefault();
+                sendMessage();
+            });
+            
+            messageInput.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    sendMessage();
                 }
             });
         }
@@ -220,13 +231,13 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log(reciver);
         let sender = data.Sender;
         let content = data.Content;
-        if (sender == reciver) {
+        if(sender != reciver || reciver == '') {
+            defaultSound.play();
+        }
+        else if (sender == reciver) {
             console.log("Received message");
             appendMessage(sender, content);
             matchSound.play();
-        }
-        else {
-            defaultSound.play();
         }
     });
 });
