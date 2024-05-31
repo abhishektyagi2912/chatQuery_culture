@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
-
+    const matchSound = document.getElementById("matchSound");
+    const defaultSound = document.getElementById("defaultSound");
     const user = localStorage.getItem("userName");
     const buttons = document.querySelectorAll(".btn");
     const token = localStorage.getItem("token");
@@ -12,9 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
         },
     });
 
-    document.addEventListener('contextmenu', event => {
-        event.preventDefault();
-    });
+    // document.addEventListener('contextmenu', event => {
+    //     event.preventDefault();
+    // });
 
     Socket.on("connect", () => {
         console.log("Connected to server");
@@ -222,6 +223,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (sender == reciver) {
             console.log("Received message");
             appendMessage(sender, content);
+            matchSound.play();
+        }
+        else {
+            defaultSound.play();
         }
     });
 });

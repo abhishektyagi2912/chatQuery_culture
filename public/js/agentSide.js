@@ -62,7 +62,11 @@ function assignSend() {
             }
         }
         message.value = "";
-    } else {
+    }
+    else if(message.value === ''){
+        appendMessages('reciver', 'Please type something to send message');
+    }
+     else {
         appendMessages('reciver', 'Please select chat option');
     }
 }
