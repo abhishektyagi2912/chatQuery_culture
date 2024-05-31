@@ -300,7 +300,10 @@ const socket = async (io) => {
             console.log('Alerting agent:', userName);
             const sender = await active.findOne({ userName: userName });
             const chat = await allchatmodel.findOne({ UserName: userName });
-            if (!chat) {
+            if(!sender) {
+                return;
+            }
+            else if (!chat) {
                 io.to(sender.socketId).emit("get-chat", {
                     username: username,
                     participant: [],

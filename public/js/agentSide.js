@@ -2,11 +2,11 @@ const agentId = sessionStorage.getItem('agentId');
 const queryId = sessionStorage.getItem('queryId');
 var chatId = '';
 var receiver = '';
-var isChat = false;
+var isChat = sessionStorage.getItem('chat') === 'true' ? true : false;
 
-// document.addEventListener('contextmenu', event => {
-//     event.preventDefault();
-// });
+document.addEventListener('contextmenu', event => {
+    event.preventDefault();
+});
 
 const Socket = io('http://localhost:3000', {
     query: {
@@ -234,7 +234,7 @@ function handleOption(option) {
             break;
         case 'chat':
             message = 'You can chat now directly to our support...';
-            isChat = true;
+            sessionStorage.setItem('chat', 'true');
             break;
         default:
             console.log('Unknown option selected');
@@ -247,7 +247,8 @@ function handleOption(option) {
 }
 
 function booking() {
-    const url = `https://apidev.cultureholidays.com/api/Holidays/GetPackageBooking?AgencyID=${agentId}`;
+    // const url = `https://apidev.cultureholidays.com/api/Holidays/GetPackageBooking?AgencyID=${agentId}`;
+    const url = `https://apidev.cultureholidays.com/api/Holidays/GetPackageBooking?AgencyID=CHAGT0001000012263`;
     const requestData = {
     }
 

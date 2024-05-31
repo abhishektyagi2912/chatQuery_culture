@@ -1,43 +1,43 @@
-const user = localStorage.getItem("userName");
-const buttons = document.querySelectorAll(".btn");
-const token = localStorage.getItem("token");
-var chatId = "";
-var reciver = "";
+document.addEventListener("DOMContentLoaded", () => {
 
-const Socket = io("http://localhost:3000", {
-    query: {
-        username: user,
-    },
-});
+    const user = localStorage.getItem("userName");
+    const buttons = document.querySelectorAll(".btn");
+    const token = localStorage.getItem("token");
+    var chatId = "";
+    var reciver = "";
 
-// document.addEventListener('contextmenu', event => {
-//     event.preventDefault();
-// });
+    const Socket = io("http://localhost:3000", {
+        query: {
+            username: user,
+        },
+    });
 
-Socket.on("connect", () => {
-    console.log("Connected to server");
-    // You can send messages or emit events here
-});
+    document.addEventListener('contextmenu', event => {
+        event.preventDefault();
+    });
 
-Socket.emit("fetch-chat", { token });
+    Socket.on("connect", () => {
+        console.log("Connected to server");
+        Socket.emit("fetch-chat", { token });
+    });
 
-Socket.on("get-chat", (data) => {
-    const chat = data.participant;
-    const chatContainer = document.getElementById("chatContainer");
-    chatContainer.innerHTML = "";
-    chat.forEach((chat) => {
-        const date = new Date(chat.createdAt);
-        var firstchar = chat.receiver.charAt(0);
-        const currentTime = date.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-        });
-        const userDiv = document.createElement("div");
-        userDiv.className = "user";
-        userDiv.dataset.id = chat.chatId;
-        userDiv.dataset.receiver = chat.receiver;
+    Socket.on("get-chat", (data) => {
+        const chat = data.participant;
+        const chatContainer = document.getElementById("chatContainer");
+        chatContainer.innerHTML = "";
+        chat.forEach((chat) => {
+            const date = new Date(chat.createdAt);
+            var firstchar = chat.receiver.charAt(0);
+            const currentTime = date.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+            });
+            const userDiv = document.createElement("div");
+            userDiv.className = "user";
+            userDiv.dataset.id = chat.chatId;
+            userDiv.dataset.receiver = chat.receiver;
 
-        userDiv.innerHTML = `
+            userDiv.innerHTML = `
             <div class="user-image">
                 <h4>${firstchar}</h4>
             </div>
@@ -46,61 +46,60 @@ Socket.on("get-chat", (data) => {
                 <p>Hi! How can I help you today?</p>
             </div>
         `;
-        chatContainer.appendChild(userDiv);
+            chatContainer.appendChild(userDiv);
 
-    });
-});
-
-Socket.on("disconnect", () => {
-    console.log("Disconnected from server");
-});
-
-Socket.on("handle-invalid-token", (data) => {
-    console.log("Error:", data.message);
-    document.cookie = 'authToken=;expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    localStorage.clear();
-    window.location.href = '/auth/login';
-});
-
-Socket.on("connectionCreated", (data) => {
-    console.log(data);
-});
-
-Socket.on("broadcast-msg", (data) => {
-    console.log(data);
-    console.log(data.message);
-
-    const notificationCard = document.getElementById("notificationCard");
-    const notificationMessage = document.getElementById("notificationMessage");
-    const acceptButton = document.getElementById("acceptButton");
-    const rejectButton = document.getElementById("rejectButton");
-
-    // Set notification message
-    notificationMessage.textContent = data.message;
-    notificationCard.style.display = "block";
-
-    setTimeout(() => {
-        notificationCard.style.display = "none";
-    }, 10000);
-
-    acceptButton.addEventListener("click", () => {
-        notificationCard.style.display = "none";
-        console.log("Accepted");
-        Socket.emit("accept", {
-            staffmeber: user,
-            agentId: data.agentId,
-            chatId: data.chatId,
-            queryId: data.queryId,
         });
     });
 
-    rejectButton.addEventListener("click", () => {
-        notificationCard.style.display = "none";
-        console.log("Rejected");
+    Socket.on("disconnect", () => {
+        console.log("Disconnected from server");
     });
-});
 
-document.addEventListener("DOMContentLoaded", () => {
+    Socket.on("handle-invalid-token", (data) => {
+        console.log("Error:", data.message);
+        document.cookie = 'authToken=;expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        localStorage.clear();
+        window.location.href = '/auth/login';
+    });
+
+    Socket.on("connectionCreated", (data) => {
+        console.log(data);
+    });
+
+    Socket.on("broadcast-msg", (data) => {
+        console.log(data);
+        console.log(data.message);
+
+        const notificationCard = document.getElementById("notificationCard");
+        const notificationMessage = document.getElementById("notificationMessage");
+        const acceptButton = document.getElementById("acceptButton");
+        const rejectButton = document.getElementById("rejectButton");
+
+        // Set notification message
+        notificationMessage.textContent = data.message;
+        notificationCard.style.display = "block";
+
+        setTimeout(() => {
+            notificationCard.style.display = "none";
+        }, 10000);
+
+        acceptButton.addEventListener("click", () => {
+            notificationCard.style.display = "none";
+            console.log("Accepted");
+            Socket.emit("accept", {
+                staffmeber: user,
+                agentId: data.agentId,
+                chatId: data.chatId,
+                queryId: data.queryId,
+            });
+        });
+
+        rejectButton.addEventListener("click", () => {
+            notificationCard.style.display = "none";
+            console.log("Rejected");
+        });
+    });
+
     // const username = document.getElementById("userName");
     // username.textContent = user;
 
@@ -216,6 +215,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     Socket.on("receive-message", (data) => {
         console.log(data);
-        appendMessage(data.Sender, data.Content);
+        console.log(data.Sender);
+        console.log(reciver);
+        let sender = data.Sender;
+        let content = data.Content;
+        if (sender == reciver) {
+            console.log("Received message");
+            appendMessage(sender, content);
+        }
     });
 });
