@@ -42,7 +42,7 @@ sendMessage.addEventListener("click", (e) => {
 });
 
 message.addEventListener("keypress", (e) => {
-    if(e.key === "Enter"){
+    if (e.key === "Enter") {
         e.preventDefault();
         assignSend();
     }
@@ -70,10 +70,10 @@ function assignSend() {
         }
         message.value = "";
     }
-    else if(message.value === ''){
+    else if (message.value === '') {
         appendMessages('reciver', 'Please type something to send message');
     }
-     else {
+    else {
         appendMessages('reciver', 'Please select chat option');
     }
 }
@@ -150,26 +150,35 @@ function fetchApi(handlerValueStr) {
         },
         body: JSON.stringify(handlerValue)
     })
-    .then(response => {
-        if (!response.ok) {
-            appendMessages('receiver', `Something went wrong while fetching the package details.`);
-            throw new Error('Network response was not ok ' + response.statusText);
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Package Details:', data);
-        const message = `Options for Tour: ${data.passenger[0].packageName}`;
-        const options = {
-            "PayNow": "paynow",
-            "Add Add-ons": "addAddons",
-            "Chat with Us": "chat"
-        };
-        appendOptionMessage(message, options, []);
-    })
-    .catch(error => {
-        appendMessages('receiver', `Some issue occurs in fetching the package details.`);
-    });
+        .then(response => {
+            if (!response.ok) {
+                appendMessages('receiver', `Something went wrong while fetching the package details.`);
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Package Details:', data);
+            const message = `Options for Tour: ${data.passenger[0].packageName}`;
+            const options = {
+                "See Booking Details": {
+                    type: "url",
+                    value: `https://cultureholidays.com/holiDays/BookingSummary?packgid=${handlerValue.pkgID}&tourdate=${handlerValue.tourDate}`
+                },
+                "Add Add-ons": {
+                    type: "function",
+                    value: "addAddons"
+                },
+                "Chat with Us": {
+                    type: "function",
+                    value: "chat"
+                }
+            };
+            appendOptionMessage(message, options, []);
+        })
+        .catch(error => {
+            appendMessages('receiver', `Some issue occurs in fetching the package details.`);
+        });
 }
 
 function showAllBookings(allDataStr) {
@@ -186,7 +195,7 @@ function showAllBookings(allDataStr) {
     appendOptionMessage(message, options, allData);
 }
 
-function appendOptionMessage(messages, optionsKeyValue,allData) {
+function appendOptionMessage(messages, optionsKeyValue, allData) {
     let text = document.createElement("div");
     let profilePicContainer = document.createElement("div");
     let pic = document.createElement("img");
@@ -198,16 +207,26 @@ function appendOptionMessage(messages, optionsKeyValue,allData) {
     name.innerText = "Culture support";
 
     message.innerText = messages;
-
+    console.log(optionsKeyValue);
     for (let [buttonText, handlerValue] of Object.entries(optionsKeyValue)) {
         let button = document.createElement("button");
         button.innerText = buttonText;
         button.classList.add("option-button");
-        if (handlerValue === "showAll") {
+
+        if (handlerValue.type === "url") {
+            button.onclick = () => {
+                window.location.href = handlerValue.value;
+            };
+        } else if (handlerValue.type === "function") {
+            button.onclick = () => {
+                window[handlerValue.value]();
+            };
+        } else if (handlerValue === "showAll") {
             button.setAttribute("onclick", `showAllBookings('${JSON.stringify(allData)}')`);
         } else {
             button.setAttribute("onclick", `fetchApi('${JSON.stringify(handlerValue)}')`);
         }
+        
         options.appendChild(button);
     }
 
@@ -258,8 +277,8 @@ function handleOption(option) {
 }
 
 function booking() {
-    // const url = `https://apidev.cultureholidays.com/api/Holidays/GetPackageBooking?AgencyID=${agentId}`;
-    const url = `https://apidev.cultureholidays.com/api/Holidays/GetPackageBooking?AgencyID=CHAGT0001000012263`;
+    const url = `https://apidev.cultureholidays.com/api/Holidays/GetPackageBooking?AgencyID=${agentId}`;
+    // const url = `https://apidev.cultureholidays.com/api/Holidays/GetPackageBooking?AgencyID=CHAGT0001000012263`;
     const requestData = {
     }
 
@@ -298,7 +317,7 @@ function booking() {
                     options["Show All Bookings"] = "showAll";
                 }
                 appendMessages('receiver', `their are ${data.length} which is booking \n ${data[0].tourName}`);
-                appendOptionMessage(message, options,data);
+                appendOptionMessage(message, options, data);
             }, 1000);
         })
         .catch(error => {
