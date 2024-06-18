@@ -226,7 +226,7 @@ function appendOptionMessage(messages, optionsKeyValue, allData) {
         } else {
             button.setAttribute("onclick", `fetchApi('${JSON.stringify(handlerValue)}')`);
         }
-        
+
         options.appendChild(button);
     }
 

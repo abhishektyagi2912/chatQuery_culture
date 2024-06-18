@@ -385,3 +385,19 @@ body {
 .notification-buttons button {
     margin-left: 5px;
 }
+
+@media screen and (max-width: 720px) {
+    .side {
+        display: none;
+    }
+
+    .sidebar{
+        width: 100%;
+    }
+    
+    .chat-side {
+        display: none;
+        width: 100%;
+    }
+    
+}
