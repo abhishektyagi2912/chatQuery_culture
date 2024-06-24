@@ -54,12 +54,12 @@ function assignSend() {
         chatContainer.scrollTop = chatContainer.scrollHeight;
 
         if (chatId !== '' && receiver !== '') {
-            console.log(receiver);
-            console.log('Sending message');
+            // console.log(receiver);
+            // console.log('Sending message');
             Socket.emit('message-send', { receiver: receiver, queryId: queryId, message: message.value, sender: queryId });
         }
         else {
-            console.log(chatId, receiver);
+            // console.log(chatId, receiver);
             if (queryId !== null && agentId !== null) {
                 console.log('auto-assign message');
                 Socket.emit('auto-assign', { agentId: agentId, queryId: queryId, message: message.value, time: new Date().toLocaleString() });
@@ -137,8 +137,9 @@ function appendMessages(sender, message) {
 }
 
 function fetchApi(handlerValueStr) {
-    console.log('Handler Value:', handlerValueStr);
-    console.log('Handler Value:', JSON.stringify(handlerValueStr));
+    appendMessages('receiver', `Fetching the package details...`);
+    // console.log('Handler Value:', handlerValueStr);
+    // console.log('Handler Value:', JSON.stringify(handlerValueStr));
     const handlerValue = JSON.parse(handlerValueStr);
 
     const url = `https://apidev.cultureholidays.com/api/Holidays/BookingDetails`;
@@ -158,16 +159,16 @@ function fetchApi(handlerValueStr) {
             return response.json();
         })
         .then(data => {
-            console.log('Package Details:', data);
+            // console.log('Package Details:', data);
             const message = `Options for Tour: ${data.passenger[0].packageName}`;
             const options = {
                 "See Booking Details": {
                     type: "url",
-                    value: `https://cultureholidays.com/holiDays/BookingSummary?packgid=${handlerValue.pkgID}&tourdate=${handlerValue.tourDate}`
+                    value: `https://staging.cultureholidays.com/holiDays/BookingSummary?packgid=${handlerValue.pkgID}&tourdate=${handlerValue.tourDate}`
                 },
                 "Add Add-ons": {
-                    type: "function",
-                    value: "addAddons"
+                    type: "url",
+                    value: `https://staging.cultureholidays.com/holiDays/BookingSummary?packgid=${handlerValue.pkgID}&tourdate=${handlerValue.tourDate}&addOn=true`
                 },
                 "Chat with Us": {
                     type: "function",
@@ -205,9 +206,8 @@ function appendOptionMessage(messages, optionsKeyValue, allData) {
     let options = document.createElement("div");
 
     name.innerText = "Culture support";
-
     message.innerText = messages;
-    console.log(optionsKeyValue);
+    // console.log(optionsKeyValue);
     for (let [buttonText, handlerValue] of Object.entries(optionsKeyValue)) {
         let button = document.createElement("button");
         button.innerText = buttonText;
@@ -215,7 +215,7 @@ function appendOptionMessage(messages, optionsKeyValue, allData) {
 
         if (handlerValue.type === "url") {
             button.onclick = () => {
-                window.location.href = handlerValue.value;
+                window.open(handlerValue.value, '_blank');
             };
         } else if (handlerValue.type === "function") {
             button.onclick = () => {
@@ -259,7 +259,7 @@ function handleOption(option) {
             booking();
             break;
         case 'newBooking':
-            message = 'Searching package name...';
+            message = 'Searching top packages for u...';
             createBooking();
             break;
         case 'chat':
@@ -278,7 +278,7 @@ function handleOption(option) {
 
 function booking() {
     const url = `https://apidev.cultureholidays.com/api/Holidays/GetPackageBooking?AgencyID=${agentId}`;
-    // const url = `https://apidev.cultureholidays.com/api/Holidays/GetPackageBooking?AgencyID=CHAGT0001000012263`;
+    // const url = `https://mobileapi.cultureholidays.com/api/Holidays/GetPackageBooking?AgencyID=CHAGT0001000012263`;
     const requestData = {
     }
 
@@ -297,8 +297,8 @@ function booking() {
             return response.json();
         })
         .then(data => {
-            console.log('Response:', data);
-            console.log(data[0].tourName);
+            // console.log('Response:', data);
+            // console.log(data[0].tourName);
             setTimeout(() => {
                 const message = "Choose the option to proceed:";
                 const options = {
@@ -306,7 +306,7 @@ function booking() {
                 };
                 const bookings = data.slice(0, 5);
                 bookings.forEach(item => {
-                    options[`Tour: ${item.tourName}, Date: ${item.tourdate}`] = {
+                    options[`${item.tourName}, Date: ${item.tourdate}`] = {
                         tourDate: item.tourdate,
                         agentID: agentId,
                         pkgID: item.packgID
@@ -326,12 +326,40 @@ function booking() {
         });
 }
 
+function fetchPacakge() {
+    const baseUrl = `https://mobileapi.cultureholidays.com/api/Holidays/TopSellingTours`;
+    fetch(baseUrl).then(response => {
+        if (!response.ok) {
+            appendMessages('receiver', `Something went wrong while fetching the package details.`);
+            // throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json();
+    }).then(data => {
+        // console.log('Package Details:', data);
+        const options = {};
+        data.forEach(item => {
+            options[item.pkG_TITLE] = {
+                type: "url",
+                value: `https://cultureholidays.com/HoliDays/PackageList?ID=${item.pkG_ID}&Type=Package`,
+                pkgID: item.packgID
+            };
+        });
+        appendOptionMessage('Our Top Packages', options, data);
+    }).catch(error => {
+        // console.error('There was a problem with the fetch operation:', error);
+        appendMessages('receiver', `Some issue occurs in fetching the package details.`);
+    });
+}
+
 createBooking = () => {
-    appendMessages('receiver', 'Choose the package  booking...');
+    setTimeout(() => {
+        fetchPacakge();
+    }, 1000);
+    // fetchPacakge();
 }
 
 Socket.on('get-individual-chat', (data) => {
-    console.log('Individual Chat:', data);
+    // console.log('Individual Chat:', data);
     const chats = data.chat;
     chats.forEach((message) => {
         const sender = (message.sender === queryId) ? 'sender' : 'receiver';
@@ -340,7 +368,7 @@ Socket.on('get-individual-chat', (data) => {
 });
 
 Socket.on('receive-message', (data) => {
-    console.log('Message:', data);
+    // console.log('Message:', data);
     const chats = data.Chat;
     chats.forEach((message) => {
         const sender = (message.sender === queryId) ? 'sender' : 'receiver';
