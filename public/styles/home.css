@@ -392,6 +392,7 @@ body {
     }
 
     .sidebar{
+        /* display: none; */
         width: 100%;
     }
     

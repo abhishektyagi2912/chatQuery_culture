@@ -105,80 +105,162 @@ Socket.on("broadcast-msg", (data) => {
 
 document.addEventListener("click", (e) => {
     if (e.target.classList.contains("user")) {
-        document.querySelectorAll('.user').forEach(element => {
-            element.style.backgroundColor = "";
-        })
-        e.target.style.backgroundColor = "#E6EBF5";
-        chatId = e.target.getAttribute("data-id");
-        reciver = e.target.getAttribute("data-receiver");
-        const chatHeader = document.getElementById("chatHeader");
-        const inputSection = document.getElementById("inputSection");
-        const chatContainer = document.getElementsByClassName("chat-section")[0];
-        chatContainer.innerHTML = ``;
-        chatHeader.innerHTML = ``;
-
-        inputSection.innerHTML = `<div class="input-filed">
-            <input type="text" id="messageInput" placeholder="Enter a message....">
-            <i class="ri-attachment-line fa"></i>
-            <div class="icon-send" id="connectButton">
-              <i class="ri-send-plane-2-fill" style="color: white;"></i>
-            </div>
-          </div>`;
-        chatHeader.innerHTML = `<div class="top">
-            <div class="user-top">
-              <div class="user-image">
-                <h4>C</h4>
-              </div>
-              <div class="user-info">
-                <h4>${reciver}</h4>
-              </div>
-            </div>
-          </div>`;
-
-        Socket.emit("fetch-individual-chat", { chatId: chatId });
-
-        Socket.on("get-individual-chat", (data) => {
-            const chat = data.chat;
+        if (window.innerWidth >= 768) {
+            document.querySelectorAll('.user').forEach(element => {
+                element.style.backgroundColor = "";
+            })
+            e.target.style.backgroundColor = "#E6EBF5";
+            chatId = e.target.getAttribute("data-id");
+            reciver = e.target.getAttribute("data-receiver");
+            const chatHeader = document.getElementById("chatHeader");
+            const inputSection = document.getElementById("inputSection");
+            const chatContainer = document.getElementsByClassName("chat-section")[0];
             chatContainer.innerHTML = ``;
-            chat.forEach((message) => {
-                appendMessage(message.sender, message.message);
+            chatHeader.innerHTML = ``;
+
+            inputSection.innerHTML = `<div class="input-filed">
+                <input type="text" id="messageInput" placeholder="Enter a message....">
+                <i class="ri-attachment-line fa"></i>
+                <div class="icon-send" id="connectButton">
+                  <i class="ri-send-plane-2-fill" style="color: white;"></i>
+                </div>
+              </div>`;
+            chatHeader.innerHTML = `<div class="top">
+                <div class="user-top">
+                  <div class="user-image">
+                    <h4>C</h4>
+                  </div>
+                  <div class="user-info">
+                    <h4>${reciver}</h4>
+                  </div>
+                </div>
+              </div>`;
+
+            Socket.emit("fetch-individual-chat", { chatId: chatId });
+
+            Socket.on("get-individual-chat", (data) => {
+                const chat = data.chat;
+                chatContainer.innerHTML = ``;
+                chat.forEach((message) => {
+                    appendMessage(message.sender, message.message);
+                });
             });
-        });
 
-        const connectButton = document.getElementById("connectButton");
-        const messageInput = document.getElementById("messageInput");
+            const connectButton = document.getElementById("connectButton");
+            const messageInput = document.getElementById("messageInput");
 
-        const sendMessage = () => {
-            const message = messageInput.value.trim();
-            // console.log("Message:", message);
-            if (message !== "") {
-                const newMessage = {
-                    chatId: chatId,
-                    receiver: reciver,
-                    message: [
-                        {
-                            sender: user,
-                            message: message,
-                        },
-                    ],
-                };
-                Socket.emit("message-staff-send", newMessage);
-                appendMessage(user, message);
-                messageInput.value = "";
-            }
-        };
+            const sendMessage = () => {
+                const message = messageInput.value.trim();
+                // console.log("Message:", message);
+                if (message !== "") {
+                    const newMessage = {
+                        chatId: chatId,
+                        receiver: reciver,
+                        message: [
+                            {
+                                sender: user,
+                                message: message,
+                            },
+                        ],
+                    };
+                    Socket.emit("message-staff-send", newMessage);
+                    appendMessage(user, message);
+                    messageInput.value = "";
+                }
+            };
 
-        connectButton.addEventListener("click", (e) => {
-            e.preventDefault();
-            sendMessage();
-        });
-
-        messageInput.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") {
+            connectButton.addEventListener("click", (e) => {
                 e.preventDefault();
                 sendMessage();
-            }
-        });
+            });
+
+            messageInput.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        }
+        else {
+            document.querySelector('.sidebar').style.display = 'none';
+            document.querySelector('.chat-side').style.display = 'block';
+
+
+            document.querySelectorAll('.user').forEach(element => {
+                element.style.backgroundColor = "";
+            })
+            e.target.style.backgroundColor = "#E6EBF5";
+            chatId = e.target.getAttribute("data-id");
+            reciver = e.target.getAttribute("data-receiver");
+            const chatHeader = document.getElementById("chatHeader");
+            const inputSection = document.getElementById("inputSection");
+            const chatContainer = document.getElementsByClassName("chat-section")[0];
+            chatContainer.innerHTML = ``;
+            chatHeader.innerHTML = ``;
+
+            inputSection.innerHTML = `<div class="input-filed">
+                <input type="text" id="messageInput" placeholder="Enter a message....">
+                <i class="ri-attachment-line fa"></i>
+                <div class="icon-send" id="connectButton">
+                  <i class="ri-send-plane-2-fill" style="color: white;"></i>
+                </div>
+              </div>`;
+            chatHeader.innerHTML = `<div class="top">
+                <div class="user-top">
+                  <div class="user-image">
+                    <h4>C</h4>
+                  </div>
+                  <div class="user-info">
+                    <h4>${reciver}</h4>
+                  </div>
+                </div>
+              </div>`;
+
+            Socket.emit("fetch-individual-chat", { chatId: chatId });
+
+            Socket.on("get-individual-chat", (data) => {
+                const chat = data.chat;
+                chatContainer.innerHTML = ``;
+                chat.forEach((message) => {
+                    appendMessage(message.sender, message.message);
+                });
+            });
+
+            const connectButton = document.getElementById("connectButton");
+            const messageInput = document.getElementById("messageInput");
+
+            const sendMessage = () => {
+                const message = messageInput.value.trim();
+                // console.log("Message:", message);
+                if (message !== "") {
+                    const newMessage = {
+                        chatId: chatId,
+                        receiver: reciver,
+                        message: [
+                            {
+                                sender: user,
+                                message: message,
+                            },
+                        ],
+                    };
+                    Socket.emit("message-staff-send", newMessage);
+                    appendMessage(user, message);
+                    messageInput.value = "";
+                }
+            };
+
+            connectButton.addEventListener("click", (e) => {
+                e.preventDefault();
+                sendMessage();
+            });
+
+            messageInput.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        }
     }
 });
 
