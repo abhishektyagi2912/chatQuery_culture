@@ -316,7 +316,7 @@ function booking() {
                 if (data.length > 5) {
                     options["Show All Bookings"] = "showAll";
                 }
-                appendMessages('receiver', `their are ${data.length} which is booking \n ${data[0].tourName}`);
+                appendMessages('receiver', `Their are ${data.length} which is booking \n ${data[0].tourName}`);
                 appendOptionMessage(message, options, data);
             }, 1000);
         })
